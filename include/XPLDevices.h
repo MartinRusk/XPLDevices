@@ -11,5 +11,10 @@
 #include <XPLDirect.h>
 
 extern XPLDirect XP;
+void XPsetup(const char *devicename);
+void XPloop();
+void handleCommand(Button *btn);
+void handleCommand(Encoder *btn);
+void handleCommand(Switch *btn);
 
 #endif

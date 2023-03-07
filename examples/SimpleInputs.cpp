@@ -31,7 +31,7 @@ void setup()
 // Main loop
 void loop()
 {
-  XP.xloop();
+  XPloop();
   handleCommand(&encHeading);
   handleCommand(&btnComFF);
   handleCommand(&swStrobe);

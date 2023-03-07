@@ -1,31 +1,24 @@
+#include <Arduino.h>
 #include <XPLDevices.h>
 
 // Interface
 XPLDirect XP(&Serial);
 
-void XPSetup(const char *devicename)
+void XPsetup(const char *devicename)
 {
   Serial.begin(XPLDIRECT_BAUDRATE);
-  XP.begin(&devicename);
+  XP.begin(devicename);
+}
+
+void XPloop()
+{
+  XP.xloop();
+  DigitalIn.handle();
 }
 
 void handleCommand(Button *btn)
 {
   btn->handle();
-  int cmdPush = btn->getCommand();
-  if (btn->pressed())
-  {
-    XP.commandStart(cmdPush);
-  }
-  if (btn->released())
-  {
-    XP.commandEnd(cmdPush);
-  }
-}
-
-void handleCommand(Button *btn, bool input)
-{
-  btn->handle(input);
   int cmdPush = btn->getCommand();
   if (btn->pressed())
   {
