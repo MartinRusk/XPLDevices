@@ -9,13 +9,11 @@
 #ifndef XPLDirect_h
 #define XPLDirect_h
 
-#define XPLDIRECT_MAXDATAREFS_ARDUINO 100 // This can be changed to suit your needs and capabilities of your board.
-#define XPLDIRECT_MAXCOMMANDS_ARDUINO 50  // Same here.
+#define XPLDIRECT_MAXDATAREFS_ARDUINO 20 // This can be changed to suit your needs and capabilities of your board.
+#define XPLDIRECT_MAXCOMMANDS_ARDUINO 100  // Same here.
 #define XPLDIRECT_RX_TIMEOUT 500 // after detecting a frame header, how long will we wait to receive the rest of the frame.  (default 500)
 
-#define XPL_COMMAND_MAX_UPDATE_RATE_MILLIS 100 // good for debounce, these are usually buttons that are pressed.  (default 300)
-
-#define XPLMAX_PACKETSIZE 100 // Probably leave this alone. If you need a few extra bytes of RAM it could be reduced, but it needs to
+#define XPLMAX_PACKETSIZE 80 // Probably leave this alone. If you need a few extra bytes of RAM it could be reduced, but it needs to
                               // be as long as the longest dataref name + 10.  If you are using datarefs
                               // that transfer strings it needs to be big enough for those too. (default 200)
 
@@ -72,7 +70,10 @@ public:
   XPLDirect(Stream *);
   void begin(const char *devicename); // parameter is name of your device for reference
   int connectionStatus(void);
-  int commandTrigger(int commandHandle); // triggers specified command 1 time;
+  int commandTrigger(int commandHandle);                    // triggers specified command 1 time;
+  int commandTrigger(int commandHandle, int triggerCount);  // triggers specified command triggerCount times.  
+  int commandStart(int commandHandle);
+  int commandEnd(int commandHandle);
   int datarefsUpdated();      // returns true if xplane has updated any datarefs since last call to datarefsUpdated()
   int hasUpdated(int handle); // returns true if xplane has updated this dataref since last call to hasUpdated()
   int registerDataRef(const XPLSTRING *, int, unsigned int, float, long int *);
@@ -94,7 +95,7 @@ private:
   void _transmitPacket();
   void _sendname();
   void _sendVersion();
-  int _getResponse(int *);
+  // int _getResponse(int *);
   int _getHandleFromFrame();
   int _getPayloadFromFrame(long int *);
   int _getPayloadFromFrame(float *);
@@ -116,8 +117,8 @@ private:
     byte forceUpdate;         // in case xplane plugin asks for a refresh
     unsigned long updateRate; // maximum update rate in milliseconds, 0 = every change
     unsigned long lastUpdateTime;
-    // const XPLSTRING *Fprefix;
-    const XPLSTRING *FdataRefName;
+    // const XPLSTRING *prefix;
+    const XPLSTRING *dataRefName;
     void *latestValue;
     union {
       long int lastSentIntValue;
@@ -130,10 +131,8 @@ private:
   struct _commandStructure
   {
     int commandHandle;
-    // const XPLSTRING *Fprefix;
-    const XPLSTRING *FcommandName;
-    unsigned long updateRate; // maximum update rate in milliseconds, 0 = every change
-    unsigned long lastUpdateTime;
+    // const XPLSTRING *prefix;
+    const XPLSTRING *commandName;
   } *_commands[XPLDIRECT_MAXCOMMANDS_ARDUINO];
   byte _allDataRefsRegistered; // becomes true if all datarefs have been registered
   byte _datarefsUpdatedFlag;   // becomes true if any datarefs have been updated from xplane since last call to datarefsUpdated()

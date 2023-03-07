@@ -7,6 +7,7 @@
 #include <arduino.h>
 #include "XPLDirect.h"
 
+// Methods
 XPLDirect::XPLDirect(Stream *device)
 {
   streamPtr = device;
@@ -51,7 +52,7 @@ int XPLDirect::xloop(void)
           }
           break;
         case XPL_DATATYPE_FLOAT:
-          if (_dataRefs[i]->divider)
+          if (_dataRefs[i]->divider > 0)
           {
             *(float *)_dataRefs[i]->latestValue = ((int)(*(float *)_dataRefs[i]->latestValue / _dataRefs[i]->divider) * _dataRefs[i]->divider);
           }
@@ -72,12 +73,30 @@ int XPLDirect::xloop(void)
 
 int XPLDirect::commandTrigger(int commandHandle)
 {
-  if (!_commands[commandHandle])
-  {
-    return -1; // inactive command
-  }
+  if (!_commands[commandHandle]) return -1; // inactive command
   _sendPacketInt(XPLCMD_COMMANDTRIGGER, _commands[commandHandle]->commandHandle, 1);
   return 0;
+}
+
+int XPLDirect::commandTrigger(int commandHandle, int triggerCount)
+{
+  if (!_commands[commandHandle]) return -1; // inactive command
+  _sendPacketInt(XPLCMD_COMMANDTRIGGER, _commands[commandHandle]->commandHandle, (long int)triggerCount);
+  return 0;
+}
+
+int XPLDirect::commandStart(int commandHandle)
+{
+	if (!_commands[commandHandle]) return -1; // inactive command
+	_sendPacketVoid(XPLCMD_COMMANDSTART, _commands[commandHandle]->commandHandle);
+	return 0;
+}
+
+int XPLDirect::commandEnd(int commandHandle)
+{
+	if (!_commands[commandHandle]) return -1; // inactive command
+	_sendPacketVoid(XPLCMD_COMMANDEND, _commands[commandHandle]->commandHandle);
+	return 0;
 }
 
 int XPLDirect::connectionStatus()
@@ -183,7 +202,7 @@ void XPLDirect::_processPacket()
   case XPLRESPONSE_DATAREF:
     for (int i = 0; i < _dataRefsCount; i++)
     {
-      if (strncmp_PF((char *)&_receiveBuffer[5], (uint_farptr_t)_dataRefs[i]->FdataRefName, strlen_PF((uint_farptr_t)_dataRefs[i]->FdataRefName)) == 0 && _dataRefs[i]->dataRefHandle == -1)
+      if (strncmp_PF((char *)&_receiveBuffer[5], (uint_farptr_t)_dataRefs[i]->dataRefName, strlen_PF((uint_farptr_t)_dataRefs[i]->dataRefName)) == 0 && _dataRefs[i]->dataRefHandle == -1)
       {
         _dataRefs[i]->dataRefHandle = _getHandleFromFrame(); // parse the refhandle
         _dataRefs[i]->updatedFlag = true;
@@ -195,7 +214,7 @@ void XPLDirect::_processPacket()
   case XPLRESPONSE_COMMAND:
     for (int i = 0; i < _commandsCount; i++)
     {
-      if (strncmp_PF((char *)&_receiveBuffer[5], (uint_farptr_t)_commands[i]->FcommandName, strlen_PF((uint_farptr_t)_commands[i]->FcommandName)) == 0 && _commands[i]->commandHandle == -1)
+      if (strncmp_PF((char *)&_receiveBuffer[5], (uint_farptr_t)_commands[i]->commandName, strlen_PF((uint_farptr_t)_commands[i]->commandName)) == 0 && _commands[i]->commandHandle == -1)
       {
         _commands[i]->commandHandle = _getHandleFromFrame(); // parse the refhandle
         i = _commandsCount;                                  // end checking
@@ -212,7 +231,7 @@ void XPLDirect::_processPacket()
       if (_dataRefs[i]->dataRefHandle == -1)
       { // some boards cant do sprintf with floats so this is a workaround
         sprintf(_sendBuffer, "%c%c%1.1i%2.2i%05i.%02i%S%c", XPLDIRECT_PACKETHEADER, XPLREQUEST_REGISTERDATAREF, _dataRefs[i]->dataRefRWType, _dataRefs[i]->arrayIndex,
-                (int)_dataRefs[i]->divider, (int)(_dataRefs[i]->divider * 100) % 100, (wchar_t *)_dataRefs[i]->FdataRefName, XPLDIRECT_PACKETTRAILER);
+                (int)_dataRefs[i]->divider, (int)(_dataRefs[i]->divider * 100) % 100, (wchar_t *)_dataRefs[i]->dataRefName, XPLDIRECT_PACKETTRAILER);
         _transmitPacket();
         packetSent = 1;
       }
@@ -223,7 +242,7 @@ void XPLDirect::_processPacket()
     {
       if (_commands[i]->commandHandle == -1)
       {
-        sprintf(_sendBuffer, "%c%c%S%c", XPLDIRECT_PACKETHEADER, XPLREQUEST_REGISTERCOMMAND, (wchar_t *)_commands[i]->FcommandName, XPLDIRECT_PACKETTRAILER);
+        sprintf(_sendBuffer, "%c%c%S%c", XPLDIRECT_PACKETHEADER, XPLREQUEST_REGISTERCOMMAND, (wchar_t *)_commands[i]->commandName, XPLDIRECT_PACKETTRAILER);
         _transmitPacket();
         packetSent = 1;
       }
@@ -387,7 +406,7 @@ int XPLDirect::registerDataRef(const XPLSTRING *datarefName, int rwmode, unsigne
     return -1; // Error
   }
   _dataRefs[_dataRefsCount] = new _dataRefStructure;
-  _dataRefs[_dataRefsCount]->FdataRefName = datarefName; // added for F() macro
+  _dataRefs[_dataRefsCount]->dataRefName = datarefName; // added for F() macro
   _dataRefs[_dataRefsCount]->dataRefRWType = rwmode;
   _dataRefs[_dataRefsCount]->divider = divider;
   _dataRefs[_dataRefsCount]->updateRate = rate;
@@ -408,7 +427,7 @@ int XPLDirect::registerDataRef(const XPLSTRING *datarefName, int rwmode, unsigne
     return -1;
   }
   _dataRefs[_dataRefsCount] = new _dataRefStructure;
-  _dataRefs[_dataRefsCount]->FdataRefName = datarefName;
+  _dataRefs[_dataRefsCount]->dataRefName = datarefName;
   _dataRefs[_dataRefsCount]->dataRefRWType = rwmode;
   _dataRefs[_dataRefsCount]->updateRate = rate;
   _dataRefs[_dataRefsCount]->divider = divider;
@@ -429,7 +448,7 @@ int XPLDirect::registerDataRef(const XPLSTRING *datarefName, int rwmode, unsigne
     return -1;
   }
   _dataRefs[_dataRefsCount] = new _dataRefStructure;
-  _dataRefs[_dataRefsCount]->FdataRefName = datarefName;
+  _dataRefs[_dataRefsCount]->dataRefName = datarefName;
   _dataRefs[_dataRefsCount]->dataRefRWType = rwmode;
   _dataRefs[_dataRefsCount]->dataRefVARType = XPL_DATATYPE_FLOAT;
   _dataRefs[_dataRefsCount]->latestValue = (void *)value;
@@ -450,7 +469,7 @@ int XPLDirect::registerDataRef(const XPLSTRING *datarefName, int rwmode, unsigne
     return -1;
   }
   _dataRefs[_dataRefsCount] = new _dataRefStructure;
-  _dataRefs[_dataRefsCount]->FdataRefName = datarefName;
+  _dataRefs[_dataRefsCount]->dataRefName = datarefName;
   _dataRefs[_dataRefsCount]->dataRefRWType = rwmode;
   _dataRefs[_dataRefsCount]->dataRefVARType = XPL_DATATYPE_FLOAT; // arrays are dealt with on the Xplane plugin side
   _dataRefs[_dataRefsCount]->latestValue = (void *)value;
@@ -470,9 +489,10 @@ int XPLDirect::registerCommand(const XPLSTRING *commandName) // user will trigge
     return -1;
   }
   _commands[_commandsCount] = new _commandStructure;
-  _commands[_commandsCount]->FcommandName = commandName;
+  _commands[_commandsCount]->commandName = commandName;
   _commands[_commandsCount]->commandHandle = -1; // invalid until assigned by xplane
   _commandsCount++;
   _allDataRefsRegistered = 0; // share this flag with the datarefs, true when everything is registered with xplane.
   return (_commandsCount - 1);
 }
+

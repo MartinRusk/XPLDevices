@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include "Encoder.h"
 
-#define DEBOUNCE_DELAY 100
+#define DEBOUNCE_DELAY 5
 
 enum
 {
@@ -10,8 +10,8 @@ enum
   eReleased
 };
 
-// Encoder with button functionality
-Encoder::Encoder(uint8_t mux, uint8_t pin1, uint8_t pin2, uint8_t pin3, uint8_t pulses)
+// Encoder with button functionality on MUX
+Encoder::Encoder(uint8_t mux, uint8_t pin1, uint8_t pin2, uint8_t pin3, EncPulse_t pulses)
 {
   _mux = mux;
   _pin1 = pin1;
@@ -21,18 +21,22 @@ Encoder::Encoder(uint8_t mux, uint8_t pin1, uint8_t pin2, uint8_t pin3, uint8_t 
   _count = 0;
   _state = 0;
   _transition = eNone;
-  if (_mux != 255)
+  _cmdUp = -1;
+  _cmdDown = -1;
+  _cmdPush = -1;
+  if (_mux != NOT_USED)
   {
     pinMode(_pin1, INPUT_PULLUP);
     pinMode(_pin2, INPUT_PULLUP);
-    if (_pin3 != 255)
+    if (_pin3 != NOT_USED)
     {
       pinMode(_pin3, INPUT_PULLUP);
     }
   }
 }
 
-Encoder::Encoder(uint8_t pin1, uint8_t pin2, uint8_t pin3, uint8_t pulses) : Encoder(255, pin1, pin2, pin3, pulses)
+// Encoder with Button funktionality directly on pins
+Encoder::Encoder(uint8_t pin1, uint8_t pin2, uint8_t pin3, EncPulse_t pulses) : Encoder(NOT_USED, pin1, pin2, pin3, pulses)
 {
 }
 
@@ -40,9 +44,7 @@ Encoder::Encoder(uint8_t pin1, uint8_t pin2, uint8_t pin3, uint8_t pulses) : Enc
 void Encoder::handle()
 {
   // collect new state
-  bool bit1 = (_mux == 255) ? !digitalRead(_pin1) : Mux.getBit(_mux, _pin1);
-  bool bit2 = (_mux == 255) ? !digitalRead(_pin2) : Mux.getBit(_mux, _pin2);
-  _state = ((_state & 0x03) << 2) | (bit2 << 1) | (bit1);
+  _state = ((_state & 0x03) << 2) | (DigitalIn.getBit(_mux, _pin2) << 1) | (DigitalIn.getBit(_mux, _pin1));
   // evaluate state change
   switch (_state)
   {
@@ -71,9 +73,9 @@ void Encoder::handle()
   }
 
   // optional button functionality
-  if (_pin3 != 255)
+  if (_pin3 != NOT_USED)
   {
-    if ((_mux == 255) ? !digitalRead(_pin3) : Mux.getBit(_mux, _pin3))
+    if (DigitalIn.getBit(_mux, _pin3))
     {
       if (_debounce == 0)
       {
@@ -139,4 +141,40 @@ bool Encoder::released()
     return true;
   }
   return false;
+}
+
+bool Encoder::engaged()
+{
+  return _state > 0;
+}
+
+void Encoder::setCommand(int cmdUp, int cmdDown, int cmdPush)
+{
+  _cmdUp = cmdUp;
+  _cmdDown = cmdDown;
+  _cmdPush = cmdPush;
+}
+
+void Encoder::setCommand(int cmdUp, int cmdDown)
+{
+  setCommand(cmdUp, cmdDown, -1);
+}
+
+int Encoder::getCommand(EncCmd_t cmd)
+{
+  switch (cmd)
+  {
+  case eEncCmdUp:
+    return _cmdUp;
+    break;
+  case eEncCmdDown:
+    return _cmdDown;
+    break;
+  case eEncCmdPush:
+    return _cmdPush;
+    break;
+  default:
+    return -1;
+    break;
+  }
 }
