@@ -16,7 +16,7 @@ LedShift leds(16, 14, 15);
 // Setup
 void setup()
 {
-  XPsetup("G1000 MFD");
+  XPsetup("Test);
   encHeading.setCommand(
       XP.registerCommand(F("sim/GPS/g1000n1_hdg_up")),
       XP.registerCommand(F("sim/GPS/g1000n1_hdg_down")),
