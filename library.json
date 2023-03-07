@@ -16,7 +16,9 @@
   ],
   "license": "GPLV3",
   "homepage": "",
-  "dependencies": {},
+  "dependencies": {
+    "adafruit/Adafruit MCP23017 Arduino Library": "^2.3.0"
+  },
   "frameworks": "*",
   "platforms": "*"
 }
