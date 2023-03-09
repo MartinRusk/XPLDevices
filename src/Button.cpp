@@ -2,13 +2,13 @@
 #include <XPLDirect.h>
 #include "Button.h"
 
-#define DEBOUNCE_DELAY 5
+#define DEBOUNCE_DELAY 100
 
 enum
 {
-  eNone,
-  ePressed,
-  eReleased
+  transNone,
+  transPressed,
+  transReleased
 };
 
 // Buttons
@@ -19,10 +19,7 @@ Button::Button(uint8_t mux, uint8_t pin)
   _state = 0;
   _transition = 0;
   _cmdPush = -1;
-  if (_mux != NOT_USED)
-  {
-    pinMode(_pin, INPUT_PULLUP);
-  }
+  pinMode(_pin, INPUT_PULLUP);
 }
 
 Button::Button(uint8_t pin) : Button(NOT_USED, pin)
@@ -42,23 +39,23 @@ void Button::handle(bool input)
     if (_state == 0)
     {
       _state = DEBOUNCE_DELAY;
-      _transition = ePressed;
+      _transition = transPressed;
     }
   }
   else if (_state > 0)
   {
     if (--_state == 0)
     {
-      _transition = eReleased;
+      _transition = transReleased;
     }
   }
 }
 
 bool Button::pressed()
 {
-  if (_transition == ePressed)
+  if (_transition == transPressed)
   {
-    _transition = eNone;
+    _transition = transNone;
     return true;
   }
   return false;
@@ -66,9 +63,9 @@ bool Button::pressed()
 
 bool Button::released()
 {
-  if (_transition == eReleased)
+  if (_transition == transReleased)
   {
-    _transition = eNone;
+    _transition = transNone;
     return true;
   }
   return false;
@@ -137,13 +134,13 @@ void RepeatButton::handle(bool input)
     if (_state == 0)
     {
       _state = DEBOUNCE_DELAY;
-      _transition = ePressed;
+      _transition = transPressed;
       _timer = millis() + _delay;
     }
     else if (_delay > 0 && (millis() >= _timer))
     {
       _state = DEBOUNCE_DELAY;
-      _transition = ePressed;
+      _transition = transPressed;
       _timer += _delay;
     }
   }
@@ -151,7 +148,7 @@ void RepeatButton::handle(bool input)
   {
     if (--_state == 0)
     {
-      _transition = eReleased;
+      _transition = transReleased;
     }
   }
 }

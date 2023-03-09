@@ -4,9 +4,9 @@
 
 enum SwState_t
 {
-  eSwitchOff,
-  eSwitchOn,
-  eSwitchOn2
+  switchOff,
+  switchOn,
+  switchOn2
 };
 
 class Switch

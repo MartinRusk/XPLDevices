@@ -2,19 +2,16 @@
 #include <XPLDirect.h>
 #include "Switch.h"
 
-#define DEBOUNCE_DELAY 10;
+#define DEBOUNCE_DELAY 100
 
 Switch::Switch(uint8_t mux, uint8_t pin)
 {
   _mux = mux;
   _pin = pin;
-  _state = eSwitchOff;
+  _state = switchOff;
   _cmdOff = -1;
   _cmdOn = -1;
-  if (_mux == NOT_USED)
-  {
-    pinMode(_pin, INPUT_PULLUP);
-  }
+  pinMode(_pin, INPUT_PULLUP);
 }
 
 Switch::Switch(uint8_t pin) : Switch (NOT_USED, pin)
@@ -29,10 +26,10 @@ bool Switch::handle()
   }
   else 
   {
-    SwState_t input = eSwitchOff;
+    SwState_t input = switchOff;
     if (DigitalIn.getBit(_mux, _pin))
     {
-      input = eSwitchOn;
+      input = switchOn;
     }
     if (input != _state)
     {
@@ -59,10 +56,10 @@ int Switch::getCommand()
 {
   switch (_state)
   {
-  case eSwitchOff:
+  case switchOff:
     return _cmdOff;
     break;
-  case eSwitchOn:
+  case switchOn:
     return _cmdOn;
     break;
   default:
@@ -101,14 +98,14 @@ bool Switch2::handle()
   }
   else
   {
-    SwState_t input = eSwitchOff;
+    SwState_t input = switchOff;
     if (DigitalIn.getBit(_mux, _pin))
     {
-      input = eSwitchOn;
+      input = switchOn;
     }
     else if (DigitalIn.getBit(_mux, _pin2))
     {
-      input = eSwitchOn2;
+      input = switchOn2;
     }
     if (input != _state)
     {
@@ -131,19 +128,19 @@ void Switch2::setCommand(int cmdOn, int cmdOff, int cmdOn2, int cmdOff2)
 
 int Switch2::getCommand()
 {
-  if (_state == eSwitchOn)
+  if (_state == switchOn)
   {
     return _cmdOn;
   }
-  if (_state == eSwitchOff && _lastState == eSwitchOn)
+  if (_state == switchOff && _lastState == switchOn)
   {
     return _cmdOff;
   }
-  if (_state == eSwitchOff && _lastState == eSwitchOn2)
+  if (_state == switchOff && _lastState == switchOn2)
   {
     return _cmdOff2;
   }
-  if (_state == eSwitchOn2)
+  if (_state == switchOn2)
   {
     return _cmdOn2;
   }

@@ -11,6 +11,10 @@ DigitalIn_::DigitalIn_()
   {
     _pin[mux] = NOT_USED;
   }
+  _s0 = NOT_USED;
+  _s1 = NOT_USED;
+  _s2 = NOT_USED;
+  _s3 = NOT_USED;
 }
 
 // configure 74HC4067 adress pins S0-S3
@@ -77,6 +81,8 @@ void DigitalIn_::handle()
   // only if Mux Pins present
 #if MCP_MAX_NUMBER > 0  
   if (_numPins > _numMCP)
+#else
+  if (_numPins > 0)
 #endif
   {
     for (uint8_t muxpin = 0; muxpin < 16; muxpin++)

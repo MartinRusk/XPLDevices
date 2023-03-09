@@ -4,16 +4,16 @@
 
 enum EncCmd_t
 {
-  eEncCmdUp,
-  eEncCmdDown,
-  eEncCmdPush
+  encCmdUp,
+  encCmdDown,
+  encCmdPush
 };
 
 enum EncPulse_t
 {
-  eEnc1Pulse = 1,
-  eEnc2Pulse = 2,
-  eEnc4Pulse = 4
+  enc1Pulse = 1,
+  enc2Pulse = 2,
+  enc4Pulse = 4
 };
 
 class Encoder

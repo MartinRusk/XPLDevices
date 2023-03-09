@@ -5,8 +5,8 @@
 
 enum Analog_t
 {
-  eUnipolar,
-  eBipolar
+  unipolar,
+  bipolar
 };
 
 class AnalogIn

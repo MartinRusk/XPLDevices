@@ -2,13 +2,13 @@
 #include <XPLDirect.h>
 #include "Encoder.h"
 
-#define DEBOUNCE_DELAY 5
+#define DEBOUNCE_DELAY 100
 
 enum
 {
-  eNone,
-  ePressed,
-  eReleased
+  transNone,
+  transPressed,
+  transReleased
 };
 
 // Encoder with button functionality on MUX
@@ -21,18 +21,15 @@ Encoder::Encoder(uint8_t mux, uint8_t pin1, uint8_t pin2, uint8_t pin3, EncPulse
   _pulses = pulses;
   _count = 0;
   _state = 0;
-  _transition = eNone;
+  _transition = transNone;
   _cmdUp = -1;
   _cmdDown = -1;
   _cmdPush = -1;
-  if (_mux != NOT_USED)
+  pinMode(_pin1, INPUT_PULLUP);
+  pinMode(_pin2, INPUT_PULLUP);
+  if (_pin3 != NOT_USED)
   {
-    pinMode(_pin1, INPUT_PULLUP);
-    pinMode(_pin2, INPUT_PULLUP);
-    if (_pin3 != NOT_USED)
-    {
-      pinMode(_pin3, INPUT_PULLUP);
-    }
+    pinMode(_pin3, INPUT_PULLUP);
   }
 }
 
@@ -81,14 +78,14 @@ void Encoder::handle()
       if (_debounce == 0)
       {
         _debounce = DEBOUNCE_DELAY;
-        _transition = ePressed;
+        _transition = transPressed;
       }
     }
     else if (_debounce > 0)
     {
       if (--_debounce == 0)
       {
-        _transition = eReleased;
+        _transition = transReleased;
       }
     }
   }
@@ -125,9 +122,9 @@ bool Encoder::down()
 // consume pressed event
 bool Encoder::pressed()
 {
-  if (_transition == ePressed)
+  if (_transition == transPressed)
   {
-    _transition = eNone;
+    _transition = transNone;
     return true;
   }
   return false;
@@ -136,9 +133,9 @@ bool Encoder::pressed()
 // consume released event
 bool Encoder::released()
 {
-  if (_transition == eReleased)
+  if (_transition == transReleased)
   {
-    _transition = eNone;
+    _transition = transNone;
     return true;
   }
   return false;
@@ -165,13 +162,13 @@ int Encoder::getCommand(EncCmd_t cmd)
 {
   switch (cmd)
   {
-  case eEncCmdUp:
+  case encCmdUp:
     return _cmdUp;
     break;
-  case eEncCmdDown:
+  case encCmdDown:
     return _cmdDown;
     break;
-  case eEncCmdPush:
+  case encCmdPush:
     return _cmdPush;
     break;
   default:

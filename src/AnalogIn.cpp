@@ -10,7 +10,7 @@ AnalogIn::AnalogIn(uint8_t pin, Analog_t type)
   _filterConst = 1.0;
   _scale = 1.0;
   pinMode(_pin, INPUT);
-  if (type == eBipolar)
+  if (type == bipolar)
   {
     _offset = HALF_SCALE;
     _scalePos = _scale / HALF_SCALE;
