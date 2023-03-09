@@ -9,21 +9,30 @@
 #ifndef XPLDirect_h
 #define XPLDirect_h
 
-#define XPLDIRECT_MAXDATAREFS_ARDUINO 20 // This can be changed to suit your needs and capabilities of your board.
+#ifndef XPLDIRECT_MAXDATAREFS_ARDUINO
+#define XPLDIRECT_MAXDATAREFS_ARDUINO 100 // This can be changed to suit your needs and capabilities of your board.
+#endif
+
+#ifndef XPLDIRECT_MAXCOMMANDS_ARDUINO
 #define XPLDIRECT_MAXCOMMANDS_ARDUINO 100  // Same here.
+#endif
+
 #define XPLDIRECT_RX_TIMEOUT 500 // after detecting a frame header, how long will we wait to receive the rest of the frame.  (default 500)
 
-#define XPLMAX_PACKETSIZE 80 // Probably leave this alone. If you need a few extra bytes of RAM it could be reduced, but it needs to
+#ifndef XPLMAX_PACKETSIZE
+#define XPLMAX_PACKETSIZE 80  // Probably leave this alone. If you need a few extra bytes of RAM it could be reduced, but it needs to
                               // be as long as the longest dataref name + 10.  If you are using datarefs
                               // that transfer strings it needs to be big enough for those too. (default 200)
+#endif
 
-#define XPL_USE_PROGMEM 1 // use Flash for strings, requires F() macro for strings in all registration calls
+#define XPL_USE_PROGMEM 1
 
 //////////////////////////////////////////////////////////////
 // STOP! Dont change any other defines in this header!
 //////////////////////////////////////////////////////////////
 
-#if XPL_USE_PROGMEM
+#ifdef XPL_USE_PROGMEM
+// use Flash for strings, requires F() macro for strings in all registration calls
   typedef const __FlashStringHelper XPString_t;
 #else
   typedef const char XPString_t;
