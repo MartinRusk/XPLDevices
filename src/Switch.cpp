@@ -41,9 +41,14 @@ bool Switch::handle()
   return false;
 }
 
-SwState_t Switch::state()
+bool Switch::on()
 {
-  return _state;
+  return (_state == switchOn);
+}
+
+bool Switch::off()
+{
+  return (_state == switchOff);
 }
 
 void Switch::setCommand(int cmdOn, int cmdOff)
@@ -116,6 +121,11 @@ bool Switch2::handle()
     }
   }
   return false;
+}
+
+bool Switch2::on2()
+{
+  return (_state == switchOn2);
 }
 
 void Switch2::setCommand(int cmdOn, int cmdOff, int cmdOn2, int cmdOff2)

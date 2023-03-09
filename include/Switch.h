@@ -15,7 +15,8 @@ public:
   Switch(uint8_t mux, uint8_t pin);
   Switch(uint8_t pin);
   bool handle();
-  SwState_t state();
+  bool on();
+  bool off();
   void setCommand(int cmdOn, int cmdOff);
   int getCommand();
   void handleCommand();
@@ -34,6 +35,7 @@ public:
   Switch2(uint8_t mux, uint8_t pin1, uint8_t pin2);
   Switch2(uint8_t pin1, uint8_t pin2);
   bool handle();
+  bool on2();
   void setCommand(int cmdOn, int cmdOff, int cmdOn2, int cmdOff2);
   int getCommand();
 protected:
