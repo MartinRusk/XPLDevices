@@ -2,7 +2,9 @@
 #include <XPLDirect.h>
 #include "Encoder.h"
 
-#define DEBOUNCE_DELAY 100
+#ifndef DEBOUNCE_DELAY
+#define DEBOUNCE_DELAY 20
+#endif
 
 enum
 {
@@ -33,7 +35,7 @@ Encoder::Encoder(uint8_t mux, uint8_t pin1, uint8_t pin2, uint8_t pin3, EncPulse
   }
 }
 
-// Encoder with Button funktionality directly on pins
+// Encoder with Button functionality directly on pins
 Encoder::Encoder(uint8_t pin1, uint8_t pin2, uint8_t pin3, EncPulse_t pulses) : Encoder(NOT_USED, pin1, pin2, pin3, pulses)
 {
 }
@@ -177,9 +179,8 @@ int Encoder::getCommand(EncCmd_t cmd)
   }
 }
 
-void Encoder::handleCommand()
+void Encoder::processCommand()
 {
-  handle();
   if (up())
   {
     XP.commandTrigger(_cmdUp);
@@ -199,4 +200,10 @@ void Encoder::handleCommand()
       XP.commandEnd(_cmdPush);
     }
   }
+}
+
+void Encoder::handleCommand()
+{
+  handle();
+  processCommand();
 }

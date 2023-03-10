@@ -2,13 +2,6 @@
 #define Switch_h
 #include <DigitalIn.h>
 
-enum SwState_t
-{
-  switchOff,
-  switchOn,
-  switchOn2
-};
-
 class Switch
 {
 public:
@@ -19,12 +12,15 @@ public:
   bool off();
   void setCommand(int cmdOn, int cmdOff);
   int getCommand();
+  void processCommand();
   void handleCommand();
+  float value(float onValue, float offValue);
 protected:
   uint8_t _mux;
   uint8_t _pin;
   uint8_t _debounce;
-  SwState_t _state;
+  uint8_t _state;
+  bool _transition;
   int _cmdOff;
   int _cmdOn;
 };
@@ -38,9 +34,10 @@ public:
   bool on2();
   void setCommand(int cmdOn, int cmdOff, int cmdOn2, int cmdOff2);
   int getCommand();
+  float value(float onValue, float offValue, float on2value);
 protected:
   uint8_t _pin2;
-  SwState_t _lastState;
+  uint8_t _lastState;
   int _cmdOff2;
   int _cmdOn2;
 };

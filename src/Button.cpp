@@ -2,7 +2,9 @@
 #include <XPLDirect.h>
 #include "Button.h"
 
-#define DEBOUNCE_DELAY 100
+#ifndef DEBOUNCE_DELAY
+#define DEBOUNCE_DELAY 20
+#endif
 
 enum
 {
@@ -28,13 +30,13 @@ Button::Button(uint8_t pin) : Button(NOT_USED, pin)
 
 void Button::handle()
 {
-  handle(DigitalIn.getBit(_mux, _pin));
+  handle(true);
 }
 
-// use additional bit for input (masking)
+// use additional bit for input masking
 void Button::handle(bool input)
 {
-  if (input && DigitalIn.getBit(_mux, _pin))
+  if (DigitalIn.getBit(_mux, _pin) && input)
   {
     if (_state == 0)
     {
@@ -86,9 +88,8 @@ int Button::getCommand()
   return _cmdPush;
 }
 
-void Button::handleCommand()
+void Button::processCommand()
 {
-  handle();
   if (pressed())
   {
     XP.commandStart(_cmdPush);
@@ -99,17 +100,16 @@ void Button::handleCommand()
   }
 }
 
+void Button::handleCommand()
+{
+  handle();
+  processCommand();
+}
+
 void Button::handleCommand(bool input)
 {
   handle(input);
-  if (pressed())
-  {
-    XP.commandStart(_cmdPush);
-  }
-  if (released())
-  {
-    XP.commandEnd(_cmdPush);
-  }
+  processCommand();
 }
 
 RepeatButton::RepeatButton(uint8_t mux, uint8_t pin, uint32_t delay) : Button(mux, pin)
@@ -124,12 +124,12 @@ RepeatButton::RepeatButton(uint8_t pin, uint32_t delay) : RepeatButton(NOT_USED,
 
 void RepeatButton::handle()
 {
-  handle(DigitalIn.getBit(_mux, _pin));
+  handle(true);
 }
 
 void RepeatButton::handle(bool input)
 {
-  if (input)
+  if (DigitalIn.getBit(_mux, _pin) && input)
   {
     if (_state == 0)
     {

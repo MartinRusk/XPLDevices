@@ -15,6 +15,7 @@ public:
   bool engaged();
   void setCommand(int cmdPush);
   int getCommand();
+  void processCommand();
   void handleCommand();
   void handleCommand(bool input);
 protected:

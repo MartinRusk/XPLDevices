@@ -2,7 +2,16 @@
 #include <XPLDirect.h>
 #include "Switch.h"
 
-#define DEBOUNCE_DELAY 100
+#ifndef DEBOUNCE_DELAY
+#define DEBOUNCE_DELAY 20
+#endif
+
+enum SwState_t
+{
+  switchOff,
+  switchOn,
+  switchOn2
+};
 
 Switch::Switch(uint8_t mux, uint8_t pin)
 {
@@ -35,6 +44,7 @@ bool Switch::handle()
     {
       _debounce = DEBOUNCE_DELAY;
       _state = input;
+      _transition = true;
       return true;
     }
   }
@@ -75,10 +85,26 @@ int Switch::getCommand()
 
 void Switch::handleCommand()
 {
-  if (handle())
+  handle();
+  processCommand();
+}
+
+void Switch::processCommand()
+{
+  if (_transition)
   {
     XP.commandTrigger(getCommand());
+    _transition = false;
   }
+}
+
+float Switch::value(float onValue, float offValue)
+{
+  if (on())
+  {
+    return onValue;
+  }
+  return offValue;
 }
 
 Switch2::Switch2(uint8_t mux, uint8_t pin1, uint8_t pin2) : Switch(mux, pin1)
@@ -117,6 +143,7 @@ bool Switch2::handle()
       _debounce = DEBOUNCE_DELAY;
       _lastState = _state;
       _state = input;
+      _transition = true;
       return true;
     }
   }
@@ -155,4 +182,17 @@ int Switch2::getCommand()
     return _cmdOn2;
   }
   return -1;
+}
+
+float Switch2::value(float onValue, float offValue, float on2value)
+{
+  if (on())
+  {
+    return onValue;
+  }
+  if (on2())
+  {
+    return on2value;
+  }
+  return offValue;
 }
