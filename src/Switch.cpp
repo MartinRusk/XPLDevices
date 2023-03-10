@@ -6,13 +6,6 @@
 #define DEBOUNCE_DELAY 20
 #endif
 
-enum SwState_t
-{
-  switchOff,
-  switchOn,
-  switchOn2
-};
-
 Switch::Switch(uint8_t mux, uint8_t pin)
 {
   _mux = mux;
@@ -21,10 +14,6 @@ Switch::Switch(uint8_t mux, uint8_t pin)
   _cmdOff = -1;
   _cmdOn = -1;
   pinMode(_pin, INPUT_PULLUP);
-}
-
-Switch::Switch(uint8_t pin) : Switch (NOT_USED, pin)
-{
 }
 
 bool Switch::handle()
@@ -51,16 +40,6 @@ bool Switch::handle()
   return false;
 }
 
-bool Switch::on()
-{
-  return (_state == switchOn);
-}
-
-bool Switch::off()
-{
-  return (_state == switchOff);
-}
-
 void Switch::setCommand(int cmdOn, int cmdOff)
 {
   _cmdOn = cmdOn;
@@ -83,12 +62,6 @@ int Switch::getCommand()
   }
 }
 
-void Switch::handleCommand()
-{
-  handle();
-  processCommand();
-}
-
 void Switch::processCommand()
 {
   if (_transition)
@@ -96,15 +69,6 @@ void Switch::processCommand()
     XP.commandTrigger(getCommand());
     _transition = false;
   }
-}
-
-float Switch::value(float onValue, float offValue)
-{
-  if (on())
-  {
-    return onValue;
-  }
-  return offValue;
 }
 
 Switch2::Switch2(uint8_t mux, uint8_t pin1, uint8_t pin2) : Switch(mux, pin1)
@@ -115,10 +79,6 @@ Switch2::Switch2(uint8_t mux, uint8_t pin1, uint8_t pin2) : Switch(mux, pin1)
   {
     pinMode(_pin2, INPUT_PULLUP);
   }
-}
-
-Switch2::Switch2(uint8_t pin1, uint8_t pin2) : Switch2 (NOT_USED, pin1, pin2)
-{
 }
 
 bool Switch2::handle()
@@ -150,11 +110,6 @@ bool Switch2::handle()
   return false;
 }
 
-bool Switch2::on2()
-{
-  return (_state == switchOn2);
-}
-
 void Switch2::setCommand(int cmdOn, int cmdOff, int cmdOn2, int cmdOff2)
 {
   _cmdOn = cmdOn;
@@ -182,17 +137,4 @@ int Switch2::getCommand()
     return _cmdOn2;
   }
   return -1;
-}
-
-float Switch2::value(float onValue, float offValue, float on2value)
-{
-  if (on())
-  {
-    return onValue;
-  }
-  if (on2())
-  {
-    return on2value;
-  }
-  return offValue;
 }

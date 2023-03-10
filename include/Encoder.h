@@ -20,20 +20,26 @@ class Encoder
 {
 public:
   Encoder(uint8_t mux, uint8_t pin1, uint8_t pin2, uint8_t pin3, EncPulse_t pulses);
-  Encoder(uint8_t pin1, uint8_t pin2, uint8_t pin3, EncPulse_t pulses);  
+  Encoder(uint8_t pin1, uint8_t pin2, uint8_t pin3, EncPulse_t pulses) : Encoder(NOT_USED, pin1, pin2, pin3, pulses) {}
   void handle();
-  int16_t pos();
-  bool up();
-  bool down();
-  bool pressed();
-  bool released();
-  bool engaged();
+  void handleXP()   { handle(); processCommand(); };
+  int16_t pos()     { return _count; };
+  bool up()         { return _count >= _pulses ? (_count -= _pulses, true) : false; };
+  bool down()       { return _count <= _pulses ? (_count += _pulses, true) : false; };
+  bool pressed()    { return _transition == transPressed  ? (_transition = transNone, true) : false; };
+  bool released()   { return _transition == transReleased ? (_transition = transNone, true) : false; };
+  bool engaged()    { return _state > 0; };
   void setCommand(int cmdUp, int cmdDown, int cmdPush);
-  void setCommand(int cmdUp, int cmdDown);
+  void setCommand(int cmdUp, int cmdDown) { setCommand(cmdUp, cmdDown, -1); };
   int getCommand(EncCmd_t cmd);
   void processCommand();
-  void handleCommand();
 private:
+  enum
+  {
+    transNone,
+    transPressed,
+    transReleased
+  };
   uint8_t _mux;
   uint8_t _pin1, _pin2, _pin3;
   int8_t _count;

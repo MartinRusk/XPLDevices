@@ -6,13 +6,6 @@
 #define DEBOUNCE_DELAY 20
 #endif
 
-enum
-{
-  transNone,
-  transPressed,
-  transReleased
-};
-
 // Buttons
 Button::Button(uint8_t mux, uint8_t pin)
 {
@@ -24,17 +17,8 @@ Button::Button(uint8_t mux, uint8_t pin)
   pinMode(_pin, INPUT_PULLUP);
 }
 
-Button::Button(uint8_t pin) : Button(NOT_USED, pin)
-{
-}
-
-void Button::handle()
-{
-  handle(true);
-}
-
 // use additional bit for input masking
-void Button::handle(bool input)
+void Button::_handle(bool input)
 {
   if (DigitalIn.getBit(_mux, _pin) && input)
   {
@@ -53,41 +37,6 @@ void Button::handle(bool input)
   }
 }
 
-bool Button::pressed()
-{
-  if (_transition == transPressed)
-  {
-    _transition = transNone;
-    return true;
-  }
-  return false;
-}
-
-bool Button::released()
-{
-  if (_transition == transReleased)
-  {
-    _transition = transNone;
-    return true;
-  }
-  return false;
-}
-
-bool Button::engaged()
-{
-  return _state > 0;
-}
-
-void Button::setCommand(int cmdPush)
-{
-  _cmdPush = cmdPush;
-}
-
-int Button::getCommand()
-{
-  return _cmdPush;
-}
-
 void Button::processCommand()
 {
   if (pressed())
@@ -100,34 +49,13 @@ void Button::processCommand()
   }
 }
 
-void Button::handleCommand()
-{
-  handle();
-  processCommand();
-}
-
-void Button::handleCommand(bool input)
-{
-  handle(input);
-  processCommand();
-}
-
 RepeatButton::RepeatButton(uint8_t mux, uint8_t pin, uint32_t delay) : Button(mux, pin)
 {
   _delay = delay;
   _timer = 0;
 }
 
-RepeatButton::RepeatButton(uint8_t pin, uint32_t delay) : RepeatButton(NOT_USED, pin, delay)
-{
-}
-
-void RepeatButton::handle()
-{
-  handle(true);
-}
-
-void RepeatButton::handle(bool input)
+void RepeatButton::_handle(bool input)
 {
   if (DigitalIn.getBit(_mux, _pin) && input)
   {

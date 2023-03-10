@@ -6,13 +6,6 @@
 #define DEBOUNCE_DELAY 20
 #endif
 
-enum
-{
-  transNone,
-  transPressed,
-  transReleased
-};
-
 // Encoder with button functionality on MUX
 Encoder::Encoder(uint8_t mux, uint8_t pin1, uint8_t pin2, uint8_t pin3, EncPulse_t pulses)
 {
@@ -35,41 +28,27 @@ Encoder::Encoder(uint8_t mux, uint8_t pin1, uint8_t pin2, uint8_t pin3, EncPulse
   }
 }
 
-// Encoder with Button functionality directly on pins
-Encoder::Encoder(uint8_t pin1, uint8_t pin2, uint8_t pin3, EncPulse_t pulses) : Encoder(NOT_USED, pin1, pin2, pin3, pulses)
-{
-}
-
 // real time handling
 void Encoder::handle()
 {
   // collect new state
   _state = ((_state & 0x03) << 2) | (DigitalIn.getBit(_mux, _pin2) << 1) | (DigitalIn.getBit(_mux, _pin1));
   // evaluate state change
-  switch (_state)
+  if (_state == 1 || _state == 7 || _state == 8 || _state == 14)
   {
-  case 1:
-  case 7:
-  case 8:
-  case 14:
     _count++;
-    break;
-  case 2:
-  case 4:
-  case 11:
-  case 13:
+  }
+  if (_state == 2 || _state == 4 || _state == 11 || _state == 13)
+  {
     _count--;
-    break;
-  case 3:
-  case 12:
+  }
+  if (_state == 3 || _state == 12)
+  {
     _count += 2;
-    break;
-  case 6:
-  case 9:
+  }
+  if (_state == 6 || _state == 9)
+  {
     _count -= 2;
-    break;
-  default:
-    break;
   }
 
   // optional button functionality
@@ -93,71 +72,11 @@ void Encoder::handle()
   }
 }
 
-// Return counter
-int16_t Encoder::pos()
-{
-  return _count;
-}
-
-// consume up event
-bool Encoder::up()
-{
-  if (_count >= _pulses)
-  {
-    _count -= _pulses;
-    return true;
-  }
-  return false;
-}
-
-// consume down event
-bool Encoder::down()
-{
-  if (_count <= -_pulses)
-  {
-    _count += _pulses;
-    return true;
-  }
-  return false;
-}
-
-// consume pressed event
-bool Encoder::pressed()
-{
-  if (_transition == transPressed)
-  {
-    _transition = transNone;
-    return true;
-  }
-  return false;
-}
-
-// consume released event
-bool Encoder::released()
-{
-  if (_transition == transReleased)
-  {
-    _transition = transNone;
-    return true;
-  }
-  return false;
-}
-
-bool Encoder::engaged()
-{
-  return _state > 0;
-}
-
 void Encoder::setCommand(int cmdUp, int cmdDown, int cmdPush)
 {
   _cmdUp = cmdUp;
   _cmdDown = cmdDown;
   _cmdPush = cmdPush;
-}
-
-void Encoder::setCommand(int cmdUp, int cmdDown)
-{
-  setCommand(cmdUp, cmdDown, -1);
 }
 
 int Encoder::getCommand(EncCmd_t cmd)
@@ -200,10 +119,4 @@ void Encoder::processCommand()
       XP.commandEnd(_cmdPush);
     }
   }
-}
-
-void Encoder::handleCommand()
-{
-  handle();
-  processCommand();
 }
