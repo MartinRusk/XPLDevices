@@ -14,7 +14,8 @@ class AnalogIn
 public:
   AnalogIn(uint8_t pin, Analog_t type, float timeConst);
   AnalogIn(uint8_t pin, Analog_t type);
-  float value();
+  void handle();
+  float value() { return _value; };
   int raw();
   void calibrate();
 private:
