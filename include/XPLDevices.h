@@ -9,6 +9,5 @@
 #include <Timer.h>
 #include <DigitalIn.h>
 #include <AnalogIn.h>
-#include <Stepper.h>
 
 #endif
