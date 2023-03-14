@@ -334,7 +334,7 @@ void XPLDirect::_sendPacketFloat(int command, int handle, float value) // for fl
   {
     // some boards cant do sprintf with floats so this is a workaround.
     char tmp[16];
-    dtostrf(value, 6, 4, tmp);
+    dtostrf(value, 8, 6, tmp);
     sprintf(_sendBuffer, "%c%c%3.3i%s%c", XPLDIRECT_PACKETHEADER, command, handle, tmp, XPLDIRECT_PACKETTRAILER);
     _transmitPacket();
   }
