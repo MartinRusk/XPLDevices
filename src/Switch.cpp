@@ -71,12 +71,19 @@ void Switch::processCommand()
   }
 }
 
-Switch2::Switch2(uint8_t mux, uint8_t pin1, uint8_t pin2) : Switch(mux, pin1)
+// Switch 2
+
+Switch2::Switch2(uint8_t mux, uint8_t pin1, uint8_t pin2)
 {
+  _mux = mux;
+  _pin1 = pin1;
   _pin2 = pin2;
-  _cmdOn2 = -1;
+  _state = switchOff;
+  _cmdOff = -1;
+  _cmdOn = -1;
   if (_mux == NOT_USED)
   {
+    pinMode(_pin1, INPUT_PULLUP);
     pinMode(_pin2, INPUT_PULLUP);
   }
 }
@@ -90,7 +97,7 @@ bool Switch2::handle()
   else
   {
     SwState_t input = switchOff;
-    if (DigitalIn.getBit(_mux, _pin))
+    if (DigitalIn.getBit(_mux, _pin1))
     {
       input = switchOn;
     }
@@ -110,12 +117,10 @@ bool Switch2::handle()
   return false;
 }
 
-void Switch2::setCommand(int cmdOn, int cmdOff, int cmdOn2, int cmdOff2)
+void Switch2::setCommand(int cmdOn, int cmdOff)
 {
   _cmdOn = cmdOn;
   _cmdOff = cmdOff;
-  _cmdOn2 = cmdOn2;
-  _cmdOff2 = cmdOff2;
 }
 
 int Switch2::getCommand()
@@ -128,13 +133,22 @@ int Switch2::getCommand()
   {
     return _cmdOff;
   }
-  if (_state == switchOff && _lastState == switchOn2)
-  {
-    return _cmdOff2;
-  }
   if (_state == switchOn2)
   {
-    return _cmdOn2;
+    return _cmdOff;
+  }
+  if (_state == switchOff && _lastState == switchOn2)
+  {
+    return _cmdOn;
   }
   return -1;
+}
+
+void Switch2::processCommand()
+{
+  if (_transition)
+  {
+    XP.commandTrigger(getCommand());
+    _transition = false;
+  }
 }
