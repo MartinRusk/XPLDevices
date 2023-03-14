@@ -194,6 +194,10 @@ void XPLDirect::_processPacket()
   case XPLCMD_RESET:
     _connectionStatus = false;
     break;
+  
+  case XPL_EXITING :         // MG 03/14/2023:  Added protocol code so the device will know if xplane has shut down normally.
+    _connectionStatus = false;
+    break;
 
   case XPLCMD_SENDNAME:
     _sendname();
