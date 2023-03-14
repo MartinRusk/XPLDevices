@@ -66,8 +66,8 @@
 #define XPLCMD_COMMANDEND 'j'
 #define XPLCMD_COMMANDTRIGGER 'k' //  %3.3i%3.3i   command handle, number of triggers
 #define XPLCMD_SENDVERSION 'v'    // we will respond with current build version
+#define XPL_EXITING 'x'           // MG 03/14/2023: xplane sends this to the arduino device during normal shutdown of xplane.  It may not happen if xplane crashes.
 
-// TODO: use enums
 #define XPL_READ 1
 #define XPL_WRITE 2
 #define XPL_READWRITE 3
