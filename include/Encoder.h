@@ -25,7 +25,7 @@ public:
   void handleXP()   { handle(); processCommand(); };
   int16_t pos()     { return _count; };
   bool up()         { return _count >= _pulses ? (_count -= _pulses, true) : false; };
-  bool down()       { return _count <= _pulses ? (_count += _pulses, true) : false; };
+  bool down()       { return _count <= -_pulses ? (_count += _pulses, true) : false; };
   bool pressed()    { return _transition == transPressed  ? (_transition = transNone, true) : false; };
   bool released()   { return _transition == transReleased ? (_transition = transNone, true) : false; };
   bool engaged()    { return _state > 0; };
