@@ -1,5 +1,7 @@
 .pio
 .vscode
 .DS_Store
-doc
+doc/html
+doc/latex
+
 
