@@ -81,7 +81,7 @@
 class XPLDirect
 {
 public:
-  XPLDirect();
+  XPLDirect(Stream*);
   void begin(const char *devicename); // parameter is name of your device for reference
   int connectionStatus(void);
   int commandTrigger(int commandHandle);                    // triggers specified command 1 time;

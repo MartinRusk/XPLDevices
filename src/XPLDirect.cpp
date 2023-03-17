@@ -8,10 +8,9 @@
 #include "XPLDirect.h"
 
 // Methods
-XPLDirect::XPLDirect()
+XPLDirect::XPLDirect(Stream* device)
 {
-  Serial.begin(XPLDIRECT_BAUDRATE);
-  streamPtr = &Serial;
+  streamPtr = device;
   streamPtr->setTimeout(XPLDIRECT_RX_TIMEOUT);
 }
 
@@ -536,4 +535,4 @@ int XPLDirect::registerCommand(XPString_t *commandName) // user will trigger com
   return (_commandsCount - 1);
 }
 
-XPLDirect XP;
+XPLDirect XP(&Serial);
