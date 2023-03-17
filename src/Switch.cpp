@@ -16,7 +16,7 @@ Switch::Switch(uint8_t mux, uint8_t pin)
   pinMode(_pin, INPUT_PULLUP);
 }
 
-bool Switch::handle()
+void Switch::handle()
 {
   if (_debounce > 0)
   {
@@ -34,10 +34,8 @@ bool Switch::handle()
       _debounce = DEBOUNCE_DELAY;
       _state = input;
       _transition = true;
-      return true;
     }
   }
-  return false;
 }
 
 void Switch::setCommand(int cmdOn, int cmdOff)
@@ -80,7 +78,7 @@ Switch2::Switch2(uint8_t mux, uint8_t pin1, uint8_t pin2)
   _pin2 = pin2;
   _state = switchOff;
   _cmdOff = -1;
-  _cmdOn = -1;
+  _cmdOn1 = -1;
   if (_mux == NOT_USED)
   {
     pinMode(_pin1, INPUT_PULLUP);
@@ -88,7 +86,7 @@ Switch2::Switch2(uint8_t mux, uint8_t pin1, uint8_t pin2)
   }
 }
 
-bool Switch2::handle()
+void Switch2::handle()
 {
   if (_debounce > 0)
   {
@@ -99,7 +97,7 @@ bool Switch2::handle()
     SwState_t input = switchOff;
     if (DigitalIn.getBit(_mux, _pin1))
     {
-      input = switchOn;
+      input = switchOn1;
     }
     else if (DigitalIn.getBit(_mux, _pin2))
     {
@@ -111,35 +109,59 @@ bool Switch2::handle()
       _lastState = _state;
       _state = input;
       _transition = true;
-      return true;
     }
   }
-  return false;
 }
 
-void Switch2::setCommand(int cmdOn, int cmdOff)
+void Switch2::setCommand(int cmdUp, int cmdDown)
 {
-  _cmdOn = cmdOn;
+  _cmdOn1 = cmdUp;
+  _cmdOff = cmdDown;
+  _cmdOn2 = -1;
+}
+
+void Switch2::setCommand(int cmdOn1, int cmdOff, int cmdOn2)
+{
+  _cmdOn1 = cmdOn1;
   _cmdOff = cmdOff;
+  _cmdOn2 = cmdOn2;
 }
 
 int Switch2::getCommand()
 {
-  if (_state == switchOn)
+  if (_cmdOn2 == -1)
   {
-    return _cmdOn;
+    if (_state == switchOn1)
+    {
+      return _cmdOn1;
+    }
+    if (_state == switchOff && _lastState == switchOn1)
+    {
+      return _cmdOff;
+    }
+    if (_state == switchOn2)
+    {
+      return _cmdOff;
+    }
+    if (_state == switchOff && _lastState == switchOn2)
+    {
+      return _cmdOn1;
+    }
   }
-  if (_state == switchOff && _lastState == switchOn)
+  else
   {
-    return _cmdOff;
-  }
-  if (_state == switchOn2)
-  {
-    return _cmdOff;
-  }
-  if (_state == switchOff && _lastState == switchOn2)
-  {
-    return _cmdOn;
+    if (_state == switchOn1)
+    {
+      return _cmdOn1;
+    }
+    if (_state == switchOff)
+    {
+      return _cmdOff;
+    }
+    if (_state == switchOn2)
+    {
+      return _cmdOn2;
+    }
   }
   return -1;
 }

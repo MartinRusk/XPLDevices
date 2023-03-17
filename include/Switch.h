@@ -2,18 +2,49 @@
 #define Switch_h
 #include <DigitalIn.h>
 
+/// @brief Class for a simple on/off switch with debouncing and XPLDirect command handling.
 class Switch
 {
 public:
+  /// @brief Constructor. Connect the switch to a pin on a mux.
+  /// @param mux mux number (from DigitalIn initialization order)
+  /// @param muxpin pin on the mux (0-15)
   Switch(uint8_t mux, uint8_t pin);
+
+  /// @brief Constructor, set digital input without mux 
+  /// @param pin Arduino pin number
   Switch(uint8_t pin) : Switch (NOT_USED, pin) {};
-  bool handle();
+  
+  /// @brief Handle realtime. Read input and evaluate any transitions.
+  void handle();
+
+  /// @brief Handle realtime and process XPLDirect commands
   void handleXP() { handle(); processCommand(); };
+
+  /// @brief Check whether Switch set to on
+  /// @return true: Switch is on
   bool on()       { return _state == switchOn; };
+  
+  /// @brief Check whether Switch set to off
+  /// @return true: Switch is off
   bool off()      { return _state == switchOff; };
+  
+  /// @brief Set XPLDirect commands for Switch events
+  /// @param cmdOn Command handle for Switch moved to on as returned by XP.registerCommand()
+  /// @param cmdOff Command handle for Switch moved to off as returned by XP.registerCommand()
   void setCommand(int cmdOn, int cmdOff);
+  
+  /// @brief Get XPLDirect command for last transition of Switch
+  /// @return Handle of the last command
   int getCommand();
+  
+  /// @brief Process all transitions to XPLDirect
   void processCommand();
+  
+  /// @brief Check Status of Switch and translate to float value
+  /// @param onValue Value to return when Switch is set to on
+  /// @param offValue Value to return when Switch is set to off
+  /// @return Returned value
   float value(float onValue, float offValue) { return on() ? onValue : offValue; };
 
 private:
@@ -31,26 +62,69 @@ private:
   int _cmdOn;
 };
 
+/// @brief Class for an on/off/on switch with debouncing and XPLDirect command handling.
 class Switch2
 {
 public:
+  /// @brief Constructor. Connect the switch to pins on a mux.
+  /// @param mux mux number (from DigitalIn initialization order)
+  /// @param pin1 on1 pin on the mux (0-15)
+  /// @param pin1 on2 pin on the mux (0-15)
   Switch2(uint8_t mux, uint8_t pin1, uint8_t pin2);
+
+  /// @brief Constructor, set digital input pins without mux 
+  /// @param pin1 on1 Arduino pin number 
+  /// @param pin2 on2 Arduino pin number 
   Switch2(uint8_t pin1, uint8_t pin2) : Switch2(NOT_USED, pin1, pin2) {}
-  bool handle();
+
+  /// @brief Handle realtime. Read inputs and evaluate any transitions.
+  void handle();
+
+  /// @brief Handle realtime and process XPLDirect commands
   void handleXP() { handle(); processCommand(); };
-  bool on()       { return _state == switchOn; };
+
+  /// @brief Check whether Switch set to off
+  /// @return true: Switch is off
   bool off()      { return _state == switchOff; };
+
+  /// @brief Check whether Switch set to on1
+  /// @return true: Switch is on1
+  bool on1()      { return _state == switchOn1; };
+
+  /// @brief Check whether Switch set to on2
+  /// @return true: Switch is on2
   bool on2()      { return _state == switchOn2; };
-  void setCommand(int cmdOn, int cmdOff);
+
+  /// @brief Set XPLDirect commands for Switch events in cases only up/down commands are to be used
+  /// @param cmdUp Command handle for Switch moved from on1 to off or from off to on2 on as returned by XP.registerCommand()
+  /// @param cmdDown Command handle for Switch moved from on2 to off or from off to on1 on as returned by XP.registerCommand()
+  void setCommand(int cmdUp, int cmdDown);
+  
+  /// @brief Set XPLDirect commands for Switch events in cases separate events for on1/off/on2 are to be used
+  /// @param cmdOn1 Command handle for Switch moved to on1 position as returned by XP.registerCommand()
+  /// @param cmdOff Command handle for Switch moved to off position as returned by XP.registerCommand()
+  /// @param cmdOn2 Command handle for Switch moved to on2 position as returned by XP.registerCommand()
+  void setCommand(int cmdOn1, int cmdOff, int cmdOn2);
+
+  /// @brief Get XPLDirect command for last transition of Switch
+  /// @return Handle of the last command
   int getCommand();
+
+  /// @brief Process all transitions to XPLDirect
   void processCommand();
-  float value(float onValue, float offValue, float on2value) { return (on() ? onValue : on2() ? on2value : offValue); };
+
+  /// @brief Check Status of Switch and translate to float value
+  /// @param on1Value Value to return when Switch is set to on1
+  /// @param offValue Value to return when Switch is set to off
+  /// @param on2Value Value to return when Switch is set to on2
+  /// @return Returned value
+  float value(float on1Value, float offValue, float on2value) { return (on1() ? on1Value : on2() ? on2value : offValue); };
 
 private:
   enum SwState_t
   {
     switchOff,
-    switchOn,
+    switchOn1,
     switchOn2
   };
   uint8_t _mux;
@@ -61,7 +135,8 @@ private:
   uint8_t _state;
   bool _transition;
   int _cmdOff;
-  int _cmdOn;
+  int _cmdOn1;
+  int _cmdOn2;
 };
 
 #endif

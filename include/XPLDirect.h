@@ -25,7 +25,9 @@
                               // that transfer strings it needs to be big enough for those too. (default 200)
 #endif
 
+#ifndef XPL_USE_PROGMEM
 #define XPL_USE_PROGMEM 1
+#endif
 
 //////////////////////////////////////////////////////////////
 // STOP! Dont change any other defines in this header!
@@ -79,7 +81,7 @@
 class XPLDirect
 {
 public:
-  XPLDirect(Stream *);
+  XPLDirect();
   void begin(const char *devicename); // parameter is name of your device for reference
   int connectionStatus(void);
   int commandTrigger(int commandHandle);                    // triggers specified command 1 time;
@@ -149,6 +151,7 @@ private:
   byte _datarefsUpdatedFlag;   // becomes true if any datarefs have been updated from xplane since last call to datarefsUpdated()
 };
 
+/// @brief System wide instance of XPLDirect interface
 extern XPLDirect XP;
 
 #endif
