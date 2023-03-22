@@ -1,5 +1,6 @@
 #ifndef SoftTimer_h
 #define SoftTimer_h
+#include <Arduino.h>
 
 /// @brief Priovide a simple software driven timer for general purpose use
 class Timer

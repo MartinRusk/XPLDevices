@@ -5,9 +5,9 @@
      www.patreon.com/curiosityworkshop
   Stripped down to Minimal Version by mrusk, February 2023  
 */
-
 #ifndef XPLDirect_h
 #define XPLDirect_h
+#include <Arduino.h>
 
 #ifndef XPLDIRECT_MAXDATAREFS_ARDUINO
 #define XPLDIRECT_MAXDATAREFS_ARDUINO 100 // This can be changed to suit your needs and capabilities of your board.

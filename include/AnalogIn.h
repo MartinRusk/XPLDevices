@@ -1,5 +1,6 @@
 #ifndef AnalogIn_h
 #define AnalogIn_h
+#include <Arduino.h>
 
 #define AD_RES 10
 

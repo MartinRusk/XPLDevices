@@ -1,5 +1,6 @@
-#ifndef Led_h
-#define Led_h
+#ifndef LedShift_h
+#define LedShift_h
+#include <Arduino.h>
 
 /// @brief LED display modes to show
 enum led_t
