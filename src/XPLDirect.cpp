@@ -4,7 +4,7 @@
   Modified by mrusk, March 2023
 */
 
-#include <arduino.h>
+#include <Arduino.h>
 #include "XPLDirect.h"
 
 // Methods

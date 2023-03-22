@@ -1,5 +1,6 @@
 #ifndef Button_h
 #define Button_h
+#include <Arduino.h>
 #include <DigitalIn.h>
 
 /// @brief Class for a simple pushbutton with debouncing and XPLDirect command handling.

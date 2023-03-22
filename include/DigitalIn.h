@@ -1,5 +1,6 @@
-#ifndef Mux_h
-#define Mux_h
+#ifndef DigitalIn_h
+#define DigitalIn_h
+#include <Arduino.h>
 
 /// @brief Maximum number of 74HC4067 multiplexers
 #ifndef MUX_MAX_NUMBER
