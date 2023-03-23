@@ -7,9 +7,9 @@
 DigitalIn_::DigitalIn_()
 {
   _numPins = 0;
-  for (uint8_t mux = 0; mux < MUX_MAX_NUMBER; mux++)
+  for (uint8_t expander = 0; expander < MUX_MAX_NUMBER; expander++)
   {
-    _pin[mux] = NOT_USED;
+    _pin[expander] = NOT_USED;
   }
   _s0 = NOT_USED;
   _s1 = NOT_USED;
@@ -28,6 +28,16 @@ void DigitalIn_::setMux(uint8_t s0, uint8_t s1, uint8_t s2, uint8_t s3)
   pinMode(_s1, OUTPUT);
   pinMode(_s2, OUTPUT);
   pinMode(_s3, OUTPUT);
+  #ifdef ARDUINO_ARCH_AVR
+  _s0port = digitalPinToPort(_s0);
+  _s1port = digitalPinToPort(_s1);
+  _s2port = digitalPinToPort(_s2);
+  _s3port = digitalPinToPort(_s3);
+  _s0mask = digitalPinToBitMask(_s0);
+  _s1mask = digitalPinToBitMask(_s1);
+  _s2mask = digitalPinToBitMask(_s2);
+  _s3mask = digitalPinToBitMask(_s3);
+  #endif
 }
 
 // Add a 74HC4067
@@ -65,14 +75,18 @@ bool DigitalIn_::addMCP(uint8_t adress)
 }
 #endif
 
-// Gets specific pin from mux, number according to initialization order 
-bool DigitalIn_::getBit(uint8_t mux, uint8_t pin)
+// Gets specific channel from expander, number according to initialization order 
+bool DigitalIn_::getBit(uint8_t expander, uint8_t channel)
 {
-  if (mux == NOT_USED)
-  {
-    return !digitalRead(pin);
+  if (expander == NOT_USED)
+  {	
+  #ifdef ARDUINO_ARCH_AVR
+  	return (*portInputRegister(digitalPinToPort(channel)) & digitalPinToBitMask(channel)) ? false : true;
+  #else
+    return !digitalRead(channel);
+  #endif
   } 
-  return bitRead(_data[mux], pin);
+  return bitRead(_data[expander], channel);
 }
 
 // read all inputs together -> base for board specific optimization by using byte read
@@ -85,28 +99,42 @@ void DigitalIn_::handle()
   if (_numPins > 0)
 #endif
   {
-    for (uint8_t muxpin = 0; muxpin < 16; muxpin++)
+    for (uint8_t channel = 0; channel < 16; channel++)
     {
-      digitalWrite(_s0, bitRead(muxpin, 0));
-      digitalWrite(_s1, bitRead(muxpin, 1));
-      digitalWrite(_s2, bitRead(muxpin, 2));
-      digitalWrite(_s3, bitRead(muxpin, 3));
-      for (uint8_t mux = 0; mux < _numPins; mux++)
+#ifdef ARDUINO_ARCH_AVR
+      uint8_t oldSREG = SREG;
+      cli();
+      (!getBit(channel, 0)) ? (*portOutputRegister(_s0port) &= ~_s0mask) : (*portOutputRegister(_s0port) |= _s0mask);
+      (!getBit(channel, 1)) ? (*portOutputRegister(_s1port) &= ~_s1mask) : (*portOutputRegister(_s1port) |= _s1mask);
+      (!getBit(channel, 2)) ? (*portOutputRegister(_s2port) &= ~_s2mask) : (*portOutputRegister(_s2port) |= _s2mask);
+      (!getBit(channel, 3)) ? (*portOutputRegister(_s3port) &= ~_s3mask) : (*portOutputRegister(_s3port) |= _s3mask);
+      SREG = oldSREG;
+#else
+      digitalWrite(_s0, bitRead(channel, 0));
+      digitalWrite(_s1, bitRead(channel, 1));
+      digitalWrite(_s2, bitRead(channel, 2));
+      digitalWrite(_s3, bitRead(channel, 3));
+#endif
+      for (uint8_t expander = 0; expander < _numPins; expander++)
       {
-        if (_pin[mux] != MCP_PIN)
+        if (_pin[expander] != MCP_PIN)
         {
-          bitWrite(_data[mux], muxpin, !digitalRead(_pin[mux]));
+#ifdef ARDUINO_ARCH_AVR
+          bitWrite(_data[expander], channel, (*portInputRegister(digitalPinToPort(_pin[expander])) & digitalPinToBitMask(_pin[expander])) ? false : true);
+#else
+          bitWrite(_data[expander], channel, !digitalRead(_pin[expander]));
+#endif
         }
       }
     }
   }
 #if MCP_MAX_NUMBER > 0
   int mcp = 0;
-  for (uint8_t mux = 0; mux < _numPins; mux++)
+  for (uint8_t expander = 0; expander < _numPins; expander++)
   {
-    if (_pin[mux] == MCP_PIN)
+    if (_pin[expander] == MCP_PIN)
     {
-      _data[mux] = ~_mcp[mcp++].readGPIOAB();
+      _data[expander] = ~_mcp[mcp++].readGPIOAB();
     }
   }
 #endif
