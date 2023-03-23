@@ -14,7 +14,7 @@
   "homepage": "",
   "dependencies": {
     "adafruit/Adafruit MCP23017 Arduino Library": "^2.3.0",
-    "adafruit/Adafruit BusIO": "1.14.1"
+    "adafruit/Adafruit BusIO": "^1.14.1"
   },
   "frameworks": "*",
   "platforms": "*"
