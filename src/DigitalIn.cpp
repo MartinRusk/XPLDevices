@@ -104,10 +104,10 @@ void DigitalIn_::handle()
 #ifdef ARDUINO_ARCH_AVR
       uint8_t oldSREG = SREG;
       cli();
-      (!bitRead(channel, 0)) ? (*portOutputRegister(_s0port) &= ~_s0mask) : (*portOutputRegister(_s0port) |= _s0mask);
-      (!bitRead(channel, 1)) ? (*portOutputRegister(_s1port) &= ~_s1mask) : (*portOutputRegister(_s1port) |= _s1mask);
-      (!bitRead(channel, 2)) ? (*portOutputRegister(_s2port) &= ~_s2mask) : (*portOutputRegister(_s2port) |= _s2mask);
-      (!bitRead(channel, 3)) ? (*portOutputRegister(_s3port) &= ~_s3mask) : (*portOutputRegister(_s3port) |= _s3mask);
+      bitRead(channel, 0) ? *portOutputRegister(_s0port) |= _s0mask : *portOutputRegister(_s0port) &= ~_s0mask;
+      bitRead(channel, 1) ? *portOutputRegister(_s1port) |= _s1mask : *portOutputRegister(_s1port) &= ~_s1mask;
+      bitRead(channel, 2) ? *portOutputRegister(_s2port) |= _s2mask : *portOutputRegister(_s2port) &= ~_s2mask;
+      bitRead(channel, 3) ? *portOutputRegister(_s3port) |= _s3mask : *portOutputRegister(_s3port) &= ~_s3mask;
       SREG = oldSREG;
       delayMicroseconds(1);
 #else
