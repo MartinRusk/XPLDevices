@@ -41,7 +41,7 @@ public:
 
 private:
   void _send();
-  void _update(uint8_t pin);
+  void _set(uint8_t pin);
   uint8_t _pin_DAI;
   uint8_t _pin_DCK;
   uint8_t _pin_LAT;
@@ -49,6 +49,7 @@ private:
   led_t _mode[16];
   uint8_t _count;
   unsigned long _timer;
+  bool _update;
 };
 
 #endif

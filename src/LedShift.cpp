@@ -24,15 +24,30 @@ LedShift::LedShift(uint8_t pin_DAI, uint8_t pin_DCK, uint8_t pin_LAT)
   _send();
 }
 
+// send 16 bit
 void LedShift::_send()
 {
-  shiftOut(_pin_DAI, _pin_DCK, MSBFIRST, (_state & 0xFF00) >> 8);
-  shiftOut(_pin_DAI, _pin_DCK, MSBFIRST, (_state & 0x00FF));
-  digitalWrite(_pin_LAT, HIGH);
-  digitalWrite(_pin_LAT, LOW);
+  // get bit masks
+  uint8_t dataPort = digitalPinToPort(_pin_DAI);
+  uint8_t dataMask = digitalPinToBitMask(_pin_DAI);
+  uint8_t clockPort = digitalPinToPort(_pin_DCK);
+  uint8_t clockMask = digitalPinToBitMask(_pin_DCK);
+  uint16_t val = _state;
+  for (uint8_t i = 16; i > 0; --i)
+  {
+    (val & 0x8000) > 0 ? *portOutputRegister(dataPort) |= dataMask : *portOutputRegister(dataPort) &= ~dataMask;
+    *portOutputRegister(clockPort) |= clockMask;
+    *portOutputRegister(clockPort) &= ~clockMask;
+    val <<= 1;
+  }
+  // latch LAT signal
+  clockPort = digitalPinToPort(_pin_LAT);
+  clockMask = digitalPinToBitMask(_pin_LAT);
+  *portOutputRegister(clockPort) |= clockMask;
+  *portOutputRegister(clockPort) &= ~clockMask;
 }
 
-void LedShift::_update(uint8_t pin)
+void LedShift::_set(uint8_t pin)
 {
   switch (_mode[pin])
   {
@@ -56,7 +71,8 @@ void LedShift::_update(uint8_t pin)
 void LedShift::set(uint8_t pin, led_t mode)
 {
   _mode[pin] = mode;
-  _update(pin);
+  _set(pin);
+  _update = true;
 }
 
 void LedShift::set_all(led_t mode)
@@ -64,8 +80,9 @@ void LedShift::set_all(led_t mode)
   for (int pin = 0; pin < 16; pin++)
   {
     _mode[pin] = mode;
-    _update(pin);
+    _set(pin);
   }
+  _update = true;
 }
 
 void LedShift::handle()
@@ -76,8 +93,13 @@ void LedShift::handle()
     _count = (_count + 1) % 8;
     for (int pin = 0; pin < 16; pin++)
     {
-      _update(pin);
+      _set(pin);
     }
+    _update = true;
   }
-  _send();
+  if (_update)
+  {
+    _send();
+    _update = false;
+  }
 }
