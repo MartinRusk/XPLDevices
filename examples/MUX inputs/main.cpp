@@ -34,22 +34,20 @@ void setup() {
   DigitalIn.addMux(39);
 
   // Register Command for the Button
-  btnStart.setCommand(
-      XP.registerCommand(F("sim/starters/engage_starter_1")));
+  btnStart.setCommand(F("sim/starters/engage_starter_1"));
 
   // Register Commands for Encoder Up/Down/Push function.
-  encHeading.setCommand(
-    XP.registerCommand(F("sim/autopilot/heading_up")),
-    XP.registerCommand(F("sim/autopilot/heading_down")),
-    XP.registerCommand(F("sim/autopilot/heading_sync")));
-  
+  encHeading.setCommand(F("sim/autopilot/heading_up"),
+                        F("sim/autopilot/heading_down"),
+                        F("sim/autopilot/heading_sync"));
+
   // Gegister Commands for Switch On and Off transitions. Commands are sent when Switch is moved
-  swStrobe.setCommand(
-      XP.registerCommand(F("sim/lights/strobe_lights_on")),
-      XP.registerCommand(F("sim/lights/strobe_lights_off")));
+  swStrobe.setCommand(F("sim/lights/strobe_lights_on"),
+                      F("sim/lights/strobe_lights_off"));
   
   // Register a DataRef for the strobe light. Read only from XP, 100ms minimum Cycle time, no divider
-  XP.registerDataRef(F("sim/cockpit/electrical/strobe_lights_on"), XPL_READ, 100, 0, &strobe);
+  XP.registerDataRef(F("sim/cockpit/electrical/strobe_lights_on"),
+                     XPL_READ, 100, 0, &strobe);
 }
 
 // Arduino loop function, called cyclic
