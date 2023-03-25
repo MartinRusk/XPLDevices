@@ -29,7 +29,15 @@ public:
   /// @brief Check whether Switch set to off
   /// @return true: Switch is off
   bool off()      { return _state == switchOff; };
-  
+
+  /// @brief Set XPLDirect commands for Switch events (command only for on position)
+  /// @param cmdOn Command handle for Switch moved to on as returned by XP.registerCommand()
+  void setCommand(int cmdOn);
+
+  /// @brief Set XPLDirect commands for Switch events (command only for on position)
+  /// @param cmdNameOn Command for Switch moved to on
+  void setCommand(XPString_t *cmdNameOn);
+
   /// @brief Set XPLDirect commands for Switch events
   /// @param cmdOn Command handle for Switch moved to on as returned by XP.registerCommand()
   /// @param cmdOff Command handle for Switch moved to off as returned by XP.registerCommand()

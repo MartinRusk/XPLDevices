@@ -11,8 +11,8 @@ Switch::Switch(uint8_t mux, uint8_t pin)
   _mux = mux;
   _pin = pin;
   _state = switchOff;
-  _cmdOff = -1;
   _cmdOn = -1;
+  _cmdOff = -1;
   pinMode(_pin, INPUT_PULLUP);
 }
 
@@ -36,6 +36,18 @@ void Switch::handle()
       _transition = true;
     }
   }
+}
+
+void Switch::setCommand(int cmdOn)
+{
+  _cmdOn = cmdOn;
+  _cmdOff = -1;
+}
+
+void Switch::setCommand(XPString_t *cmdNameOn)
+{
+  _cmdOn = XP.registerCommand(cmdNameOn);
+  _cmdOff = -1;
 }
 
 void Switch::setCommand(int cmdOn, int cmdOff)
@@ -70,7 +82,11 @@ void Switch::processCommand()
 {
   if (_transition)
   {
-    XP.commandTrigger(getCommand());
+    int cmd = getCommand();
+    if (cmd >= 0)
+    {
+      XP.commandTrigger(getCommand());
+    }
     _transition = false;
   }
 }
