@@ -577,5 +577,5 @@ int XPLDirect::registerCommand(XPString_t *commandName) // user will trigger com
   return (_commandsCount - 1);
 }
 
-// The cantral instance for the application
+// The central instance for the application
 XPLDirect XP(&Serial);
