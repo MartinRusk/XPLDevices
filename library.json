@@ -10,8 +10,8 @@
       "maintainer": true
     }
   ],
-  "license": "GPLV3",
-  "homepage": "",
+  "license": "GPL-3.0-or-later",
+  "homepage": "https://github.com/MartinRusk/XPLDevices",
   "dependencies": {
     "adafruit/Adafruit MCP23017 Arduino Library": "^2.3.0",
     "adafruit/Adafruit BusIO": "^1.14.1"
