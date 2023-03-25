@@ -71,7 +71,7 @@ int XPLDirect::xloop(void)
 
 int XPLDirect::commandTrigger(int commandHandle)
 {
-  if (commandHandle < 0 || commandHandle >= _dataRefsCount)
+  if (commandHandle < 0 || commandHandle >= _commandsCount)
   { // invalid handle
     return -1;
   } 
@@ -89,7 +89,7 @@ int XPLDirect::commandTrigger(int commandHandle)
 
 int XPLDirect::commandTrigger(int commandHandle, int triggerCount)
 {
-  if (commandHandle < 0 || commandHandle >= _dataRefsCount)
+  if (commandHandle < 0 || commandHandle >= _commandsCount)
   { // invalid handle
     return -1;
   } 
@@ -110,7 +110,7 @@ int XPLDirect::commandTrigger(int commandHandle, int triggerCount)
 
 int XPLDirect::commandStart(int commandHandle)
 {
-  if (commandHandle < 0 || commandHandle >= _dataRefsCount)
+  if (commandHandle < 0 || commandHandle >= _commandsCount)
   { // invalid handle
     return -1;
   } 
@@ -128,7 +128,7 @@ int XPLDirect::commandStart(int commandHandle)
 
 int XPLDirect::commandEnd(int commandHandle)
 {
-  if (commandHandle < 0 || commandHandle >= _dataRefsCount)
+  if (commandHandle < 0 || commandHandle >= _commandsCount)
   { // invalid handle
     return -1;
   } 
