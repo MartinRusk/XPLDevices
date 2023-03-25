@@ -37,6 +37,16 @@ void Button::_handle(bool input)
   }
 }
 
+void Button::setCommand(int cmdPush)
+{
+  _cmdPush = cmdPush;
+}
+
+void Button::setCommand(XPString_t *cmdNamePush)
+{
+  _cmdPush = XP.registerCommand(cmdNamePush);
+}
+
 void Button::processCommand()
 {
   if (pressed())

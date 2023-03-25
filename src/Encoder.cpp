@@ -79,6 +79,27 @@ void Encoder::setCommand(int cmdUp, int cmdDown, int cmdPush)
   _cmdPush = cmdPush;
 }
 
+void Encoder::setCommand(XPString_t *cmdNameUp, XPString_t *cmdNameDown, XPString_t *cmdNamePush)
+{
+  _cmdUp = XP.registerCommand(cmdNameUp);
+  _cmdDown = XP.registerCommand(cmdNameDown);
+  _cmdPush = XP.registerCommand(cmdNamePush);
+}
+
+void Encoder::setCommand(int cmdUp, int cmdDown)
+{
+  _cmdUp = cmdUp;
+  _cmdDown = cmdDown;
+  _cmdPush = -1;
+}
+
+void Encoder::setCommand(XPString_t *cmdNameUp, XPString_t *cmdNameDown)
+{
+  _cmdUp = XP.registerCommand(cmdNameUp);
+  _cmdDown = XP.registerCommand(cmdNameDown);
+  _cmdPush = -1;
+}
+
 int Encoder::getCommand(EncCmd_t cmd)
 {
   switch (cmd)
