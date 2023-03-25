@@ -73,10 +73,21 @@ public:
   /// @param cmdPush Command handle for push as returned by XP.registerCommand()
   void setCommand(int cmdUp, int cmdDown, int cmdPush);
 
+  /// @brief Set XPLDirect commands for Encoder events
+  /// @param cmdNameUp Command for positive turn
+  /// @param cmdNameDown Command for negative turn
+  /// @param cmdNamePush Command for push
+  void setCommand(XPString_t *cmdNameUp, XPString_t *cmdNameDown, XPString_t *cmdNamePush);
+
   /// @brief Set XPLDirect commands for Encoder events without push function
   /// @param cmdUp Command handle for positive turn as returned by XP.registerCommand()
   /// @param cmdDown Command handle for negative turn as returned by XP.registerCommand()
-  void setCommand(int cmdUp, int cmdDown) { setCommand(cmdUp, cmdDown, -1); };
+  void setCommand(int cmdUp, int cmdDown);
+
+  /// @brief Set XPLDirect commands for Encoder events
+  /// @param cmdNameUp Command for positive turn
+  /// @param cmdNameDown Command for negative turn
+  void setCommand(XPString_t *cmdNameUp, XPString_t *cmdNameDown);
 
   /// @brief Get XPLDirect command assiciated with the selected event
   /// @param cmd Event to read out (encCmdUp, encCmdDown, encCmdPush)

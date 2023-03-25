@@ -44,6 +44,12 @@ void Switch::setCommand(int cmdOn, int cmdOff)
   _cmdOff = cmdOff;
 }
 
+void Switch::setCommand(XPString_t *cmdNameOn, XPString_t *cmdNameOff)
+{
+  _cmdOn = XP.registerCommand(cmdNameOn);
+  _cmdOff = XP.registerCommand(cmdNameOff);
+}
+
 int Switch::getCommand()
 {
   switch (_state)
@@ -79,6 +85,7 @@ Switch2::Switch2(uint8_t mux, uint8_t pin1, uint8_t pin2)
   _state = switchOff;
   _cmdOff = -1;
   _cmdOn1 = -1;
+  _cmdOn2 = -1;
   if (_mux == NOT_USED)
   {
     pinMode(_pin1, INPUT_PULLUP);
@@ -120,11 +127,25 @@ void Switch2::setCommand(int cmdUp, int cmdDown)
   _cmdOn2 = -1;
 }
 
+void Switch2::setCommand(XPString_t *cmdNameUp, XPString_t *cmdNameDown)
+{
+  _cmdOn1 = XP.registerCommand(cmdNameUp);
+  _cmdOff = XP.registerCommand(cmdNameDown);
+  _cmdOn2 = -1;
+}
+
 void Switch2::setCommand(int cmdOn1, int cmdOff, int cmdOn2)
 {
   _cmdOn1 = cmdOn1;
   _cmdOff = cmdOff;
   _cmdOn2 = cmdOn2;
+}
+
+void Switch2::setCommand(XPString_t *cmdNameOn1, XPString_t *cmdNameOff, XPString_t *cmdNameOn2)
+{
+  _cmdOn1 = XP.registerCommand(cmdNameOn1);
+  _cmdOff = XP.registerCommand(cmdNameOff);
+  _cmdOn2 = XP.registerCommand(cmdNameOn2);
 }
 
 int Switch2::getCommand()
