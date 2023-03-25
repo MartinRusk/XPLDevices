@@ -75,7 +75,7 @@ void LedShift::set(uint8_t pin, led_t mode)
   _update = true;
 }
 
-void LedShift::set_all(led_t mode)
+void LedShift::setAll(led_t mode)
 {
   for (int pin = 0; pin < 16; pin++)
   {

@@ -34,7 +34,11 @@ public:
 
   /// @brief Set display mode for all 16 LEDs
   /// @param mode LED display mode
-  void set_all(led_t mode);
+  void setAll(led_t mode);
+
+  /// @brief Set display mode for all 16 LEDs (obsolete, replaced by setAll())
+  /// @param mode LED display mode
+  void set_all(led_t mode) { setAll(mode); };
 
   /// @brief Real time handling, call cyclic in loop()
   void handle();
