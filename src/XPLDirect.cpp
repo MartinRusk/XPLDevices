@@ -71,32 +71,75 @@ int XPLDirect::xloop(void)
 
 int XPLDirect::commandTrigger(int commandHandle)
 {
+  if (commandHandle < 0 || commandHandle >= _dataRefsCount)
+  { // invalid handle
+    return -1;
+  } 
   if (!_commands[commandHandle])
-    return -1; // inactive command
+  { // inactive command
+    return -1;
+  } 
+#if XPL_DEBUG
+  Serial.print("Command Trigger: ");
+  Serial.println(_commands[commandHandle]->commandName);
+#endif
   _sendPacketInt(XPLCMD_COMMANDTRIGGER, _commands[commandHandle]->commandHandle, 1);
   return 0;
 }
 
 int XPLDirect::commandTrigger(int commandHandle, int triggerCount)
 {
+  if (commandHandle < 0 || commandHandle >= _dataRefsCount)
+  { // invalid handle
+    return -1;
+  } 
   if (!_commands[commandHandle])
-    return -1; // inactive command
+  { // inactive command
+    return -1;
+  }
+#if XPL_DEBUG
+  Serial.print("Command Trigger: ");
+  Serial.print(_commands[commandHandle]->commandName);
+  Serial.print(" ");
+  Serial.print(triggerCount);
+  Serial.println(" times");
+#endif
   _sendPacketInt(XPLCMD_COMMANDTRIGGER, _commands[commandHandle]->commandHandle, (long int)triggerCount);
   return 0;
 }
 
 int XPLDirect::commandStart(int commandHandle)
 {
+  if (commandHandle < 0 || commandHandle >= _dataRefsCount)
+  { // invalid handle
+    return -1;
+  } 
   if (!_commands[commandHandle])
-    return -1; // inactive command
+  { // inactive command
+    return -1;
+  }
+#if XPL_DEBUG
+  Serial.print("Command Start  : ");
+  Serial.println(_commands[commandHandle]->commandName);
+#endif
   _sendPacketVoid(XPLCMD_COMMANDSTART, _commands[commandHandle]->commandHandle);
   return 0;
 }
 
 int XPLDirect::commandEnd(int commandHandle)
 {
+  if (commandHandle < 0 || commandHandle >= _dataRefsCount)
+  { // invalid handle
+    return -1;
+  } 
   if (!_commands[commandHandle])
-    return -1; // inactive command
+  { // inactive command
+    return -1;
+  }
+#if XPL_DEBUG
+  Serial.print("Command End    : ");
+  Serial.println(_commands[commandHandle]->commandName);
+#endif
   _sendPacketVoid(XPLCMD_COMMANDEND, _commands[commandHandle]->commandHandle);
   return 0;
 }
@@ -117,7 +160,6 @@ int XPLDirect::sendSpeakMessage(const char* msg)
   _sendPacketString(XPLCMD_SPEAK, (char *)msg);
   return 1;
 }
-
 
 int XPLDirect::hasUpdated(int handle)
 {
@@ -535,4 +577,5 @@ int XPLDirect::registerCommand(XPString_t *commandName) // user will trigger com
   return (_commandsCount - 1);
 }
 
+// The cantral instance for the application
 XPLDirect XP(&Serial);
