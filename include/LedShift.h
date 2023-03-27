@@ -6,15 +6,15 @@
 enum led_t
 {
   /// @brief LED permanent off
-  ledOff,
-  /// @brief LED slow flashing (1200 ms cycle)
-  ledSlow,
-  /// @brief LED medium fast flashing (600 ms cycle)
-  ledMedium,
+  ledOff = 0x00,
   /// @brief LED fast flashing (300 ms cycle)
-  ledFast,
+  ledFast = 0x01,
+  /// @brief LED medium fast flashing (600 ms cycle)
+  ledMedium = 0x02,
+  /// @brief LED slow flashing (1200 ms cycle)
+  ledSlow = 0x04,
   /// @brief LED permanent on
-  ledOn
+  ledOn = 0x08
 };
 
 /// @brief Class to encapsulate a DM13A LED driver IC
@@ -25,7 +25,8 @@ public:
   /// @param pin_DAI DAI pin of DM13A
   /// @param pin_DCK DCL pin of DM13A
   /// @param pin_LAT LAT pin of DM13A
-  LedShift(uint8_t pin_DAI, uint8_t pin_DCK, uint8_t pin_LAT);
+  /// @param pins Number of LED pins for cascaded LED drivers (max 64)
+  LedShift(uint8_t pin_DAI, uint8_t pin_DCK, uint8_t pin_LAT, uint8_t pins = 16);
 
   /// @brief Set one LED to a display mode
   /// @param pin DM13A pin of the LED (0-15)
@@ -45,12 +46,12 @@ public:
 
 private:
   void _send();
-  void _set(uint8_t pin);
+  void _updatePin(uint8_t pin);
   uint8_t _pin_DAI;
   uint8_t _pin_DCK;
   uint8_t _pin_LAT;
-  uint16_t _state;
-  led_t _mode[16];
+  uint8_t _pins;
+  led_t _mode[64];
   uint8_t _count;
   unsigned long _timer;
   bool _update;
