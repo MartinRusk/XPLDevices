@@ -1,20 +1,12 @@
 #include <Arduino.h>
-#include "LedShift.h"
+#include "ShiftOut.h"
 
-#define BLINK_DELAY 150
-
-LedShift::LedShift(uint8_t pin_DAI, uint8_t pin_DCK, uint8_t pin_LAT, uint8_t pins)
+ShiftOut::ShiftOut(uint8_t pin_DAI, uint8_t pin_DCK, uint8_t pin_LAT, uint8_t pins)
 {
-  _count = 0;
-  _timer = millis() + BLINK_DELAY;
   _pin_DAI = pin_DAI;
   _pin_DCK = pin_DCK;
   _pin_LAT = pin_LAT;
   _pins = min(pins, 64);
-  for (int pin = 0; pin < _pins; pin++)
-  {
-   _mode[pin] = ledOff;
-  }
   pinMode(_pin_DAI, OUTPUT);
   pinMode(_pin_DCK, OUTPUT);
   pinMode(_pin_LAT, OUTPUT);
@@ -25,7 +17,7 @@ LedShift::LedShift(uint8_t pin_DAI, uint8_t pin_DCK, uint8_t pin_LAT, uint8_t pi
 }
 
 // send data
-void LedShift::_send()
+void ShiftOut::_send()
 {
   // get bit masks
   uint8_t dataPort = digitalPinToPort(_pin_DAI);
@@ -34,10 +26,9 @@ void LedShift::_send()
   uint8_t clockMask = digitalPinToBitMask(_pin_DCK);
   uint8_t oldSREG = SREG;
   noInterrupts();
-  uint8_t val = _count | 0x08;
   for (uint8_t pin = _pins; pin-- > 0;)
   {
-    (_mode[pin] & val) > 0 ? *portOutputRegister(dataPort) |= dataMask : *portOutputRegister(dataPort) &= ~dataMask;
+    bitRead(_state[pin >> 3], pin & 0x07) ? *portOutputRegister(dataPort) |= dataMask : *portOutputRegister(dataPort) &= ~dataMask;
     *portOutputRegister(clockPort) |= clockMask;
     *portOutputRegister(clockPort) &= ~clockMask;
   }
@@ -49,35 +40,29 @@ void LedShift::_send()
   SREG = oldSREG;
 }
 
-void LedShift::setPin(uint8_t pin, led_t mode)
+void ShiftOut::setPin(uint8_t pin, bool state)
 {
   if (pin < _pins)
   {
-    if (_mode[pin] != mode)
+    if (state != bitRead(_state[pin >> 3], pin & 0x07))
     {
-      _mode[pin] = mode;
+      bitWrite(_state[pin >> 3], pin & 0x07, state);
       _update = true;
     }
   }
 }
 
-void LedShift::setAll(led_t mode)
+void ShiftOut::setAll(bool state)
 {
   for (int pin = 0; pin < _pins; pin++)
   {
-    _mode[pin] = mode;
+    bitWrite(_state[pin >> 3], pin & 0x07, state);
   }
   _update = true;
 }
 
-void LedShift::handle()
+void ShiftOut::handle()
 {
-  if (millis() >= _timer)
-  {
-    _timer += BLINK_DELAY;
-    _count = (_count + 1) & 0x07;
-    _update = true;
-  }
   if (_update)
   {
     _send();

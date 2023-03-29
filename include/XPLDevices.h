@@ -5,6 +5,7 @@
 #include <Button.h>
 #include <Encoder.h>
 #include <Switch.h>
+#include <ShiftOut.h>
 #include <LedShift.h>
 #include <Timer.h>
 #include <DigitalIn.h>
