@@ -9,7 +9,7 @@ class Switch
 public:
   /// @brief Constructor. Connect the switch to a pin on a mux.
   /// @param mux mux number (from DigitalIn initialization order)
-  /// @param muxpin pin on the mux (0-15)
+  /// @param pin pin on the mux (0-15)
   Switch(uint8_t mux, uint8_t pin);
 
   /// @brief Constructor, set digital input without mux 
@@ -83,7 +83,7 @@ public:
   /// @brief Constructor. Connect the switch to pins on a mux.
   /// @param mux mux number (from DigitalIn initialization order)
   /// @param pin1 on1 pin on the mux (0-15)
-  /// @param pin1 on2 pin on the mux (0-15)
+  /// @param pin2 on2 pin on the mux (0-15)
   Switch2(uint8_t mux, uint8_t pin1, uint8_t pin2);
 
   /// @brief Constructor, set digital input pins without mux 
@@ -143,7 +143,7 @@ public:
   /// @param offValue Value to return when Switch is set to off
   /// @param on2Value Value to return when Switch is set to on2
   /// @return Returned value
-  float value(float on1Value, float offValue, float on2value) { return (on1() ? on1Value : on2() ? on2value : offValue); };
+  float value(float on1Value, float offValue, float on2Value) { return (on1() ? on1Value : on2() ? on2Value : offValue); };
 
 private:
   enum SwState_t

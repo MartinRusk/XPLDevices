@@ -29,13 +29,13 @@ public:
   LedShift(uint8_t pin_DAI, uint8_t pin_DCK, uint8_t pin_LAT, uint8_t pins = 16);
 
   /// @brief Set one LED to a display mode
-  /// @param pin DM13A pin of the LED (0-15)
-  /// @param mode LED display mode
+  /// @param pin DM13A pin of the LED (0-64)
+  /// @param mode LED display mode (ledOff, ledFast, ledMedium, ledSlow, ledOn)
   void setPin(uint8_t pin, led_t mode);
   void set(uint8_t pin, led_t mode) { setPin(pin, mode); }; // obsolete
 
-  /// @brief Set display mode for all 16 LEDs
-  /// @param mode LED display mode
+  /// @brief Set display mode for all LEDs
+  /// @param mode LED display mode (ledOff, ledFast, ledMedium, ledSlow, ledOn)
   void setAll(led_t mode);
   void set_all(led_t mode) { setAll(mode); }; // obsolete
 
