@@ -39,17 +39,21 @@ public:
   /// @brief Perform calibration for bipolar input, current position gets center and +/- ranges are adapted to cover +/-1
   void calibrate();
 
+  /// 
   void setRange(int16_t offset, int16_t range);
 
+  ///
   void setScale(float scale);
 
 private:
+  void _calcScales();
   float _filterConst;
   float _value;
   float _scale;
   float _scalePos;
   float _scaleNeg;
-  int _offset;
+  int16_t _offset;
+  int16_t _range;
   uint8_t _pin;
 };
 

@@ -26,7 +26,10 @@ AnalogIn::AnalogIn(uint8_t pin, Analog_t type)
 
 AnalogIn::AnalogIn(uint8_t pin, Analog_t type, float timeConst) : AnalogIn(pin, type)
 {
-  _filterConst = 1.0 / timeConst;
+  if (timeConst > 0)
+  {
+    _filterConst = 1.0 / timeConst;
+  }
 }
 
 void AnalogIn::handle()
@@ -52,27 +55,42 @@ void AnalogIn::calibrate()
   _scaleNeg = (_offset > 0)? _scale / (float)(_offset) : 1.0;
 }
 
-void AnalogIn::setRange(int16_t offset, int16_t range)
+void AnalogIn::setRange(int16_t min, int16_t max)
 {
-  _offset = offset;
-  if (range > offset)
+  If (max == min)
   {
-    _scalePos = _scale / (float)(range-offset);
-    _scaleNeg = 0;
-  }
-  else if (range < offset)
+    _offset = 0;
+    range = FULL_SCALE; 
+  }  
+  else if (max > min)
   {
-    _scalePos = 0;
-    _scaleNeg = _scale / (float)(offset-range);
+    _offset = min;
+    _range = max - min;
   }
   else
   {
-    _scalePos = 0;
-    _scaleNeg = 0;
+    _offset = max;
+    _range = max - min;
   }
+  _calcScales();
 }
 
 void AnalogIn::setScale(float scale)
 {
   _scale = scale;
+  _calcScales();
+}
+
+void AnalogIn::_calcScales()
+{
+  if (_range > 0)
+  {
+    _scalePos = _scale / (float)(range);
+    _scaleNeg = 0;
+  }
+  else
+  {
+    _scalePos = 0;
+    _scaleNeg = _scale / (float)(-range);
+  }
 }
