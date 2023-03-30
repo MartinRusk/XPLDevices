@@ -51,3 +51,28 @@ void AnalogIn::calibrate()
   _scalePos = (_offset < FULL_SCALE) ? _scale / (float)(FULL_SCALE - _offset) : 1.0;
   _scaleNeg = (_offset > 0)? _scale / (float)(_offset) : 1.0;
 }
+
+void AnalogIn::setRange(int16_t offset, int16_t range)
+{
+  _offset = offset;
+  if (range > offset)
+  {
+    _scalePos = _scale / (float)(range-offset);
+    _scaleNeg = 0;
+  }
+  else if (range < offset)
+  {
+    _scalePos = 0;
+    _scaleNeg = _scale / (float)(offset-range);
+  }
+  else
+  {
+    _scalePos = 0;
+    _scaleNeg = 0;
+  }
+}
+
+void AnalogIn::setScale(float scale)
+{
+  _scale = scale;
+}
