@@ -9,19 +9,19 @@ AnalogIn::AnalogIn(uint8_t pin, Analog_t type)
   _pin = pin;
   _filterConst = 1.0;
   _scale = 1.0;
+  _min = 0;
+  _max = FULL_SCALE;
+  _type = type;
   pinMode(_pin, INPUT);
-  if (type == bipolar)
+  if (_type == bipolar)
   {
     _offset = HALF_SCALE;
-    _scalePos = _scale / HALF_SCALE;
-    _scaleNeg = _scale / HALF_SCALE;
   }
   else
   {
     _offset = 0;
-    _scalePos = _scale / FULL_SCALE;
-    _scaleNeg = 0.0;
   }
+  _calcScales();
 }
 
 AnalogIn::AnalogIn(uint8_t pin, Analog_t type, float timeConst) : AnalogIn(pin, type)
@@ -40,37 +40,40 @@ void AnalogIn::handle()
 
 int AnalogIn::raw()
 {
-  return analogRead(_pin) - _offset;
+  return constrain(analogRead(_pin), (int16_t)_min, (int16_t)_max) - _offset;
 }
 
 void AnalogIn::calibrate()
 {
+  if (_type == unipolar)
+  {
+    return;
+  }
   long sum = 0;
   for (int i = 0; i < 64; i++)
   {
     sum += analogRead(_pin);
   }
   _offset = (int)(sum / 64);
-  _scalePos = (_offset < FULL_SCALE) ? _scale / (float)(FULL_SCALE - _offset) : 1.0;
-  _scaleNeg = (_offset > 0)? _scale / (float)(_offset) : 1.0;
+  _calcScales();
 }
 
-void AnalogIn::setRange(int16_t min, int16_t max)
+void AnalogIn::setRange(uint16_t min, uint16_t max)
 {
-  If (max == min)
+  _min = min(min, max);
+  _max = max(min, max);
+  if (min == max)
   {
-    _offset = 0;
-    range = FULL_SCALE; 
-  }  
-  else if (max > min)
+    _min = 0;
+    _max = FULL_SCALE;
+  } 
+  if (_type == unipolar)
   {
-    _offset = min;
-    _range = max - min;
+    _offset = _min;
   }
   else
   {
-    _offset = max;
-    _range = max - min;
+    _offset = (_max + _min) / 2;
   }
   _calcScales();
 }
@@ -83,14 +86,14 @@ void AnalogIn::setScale(float scale)
 
 void AnalogIn::_calcScales()
 {
-  if (_range > 0)
+  if (_type == unipolar)
   {
-    _scalePos = _scale / (float)(range);
+    _scalePos = _scale / (float)(_max - _min);
     _scaleNeg = 0;
   }
   else
   {
-    _scalePos = 0;
-    _scaleNeg = _scale / (float)(-range);
+    _scalePos = (_offset == _max) ? 0 : _scale / (float)(_max - _offset);
+    _scaleNeg = (_offset == _min) ? 0 : _scale / (float)(_offset - _min);
   }
 }
