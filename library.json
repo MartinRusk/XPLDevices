@@ -1,6 +1,6 @@
 {
   "name": "XPLDevices",
-  "version": "0.13.0",
+  "version": "0.13.1",
   "description": "Easy-to-start toolbox to create flight simulation devices based on the XPLDirect driver by CuriosityWorkshop",
   "keywords": "xplane, flighsim, arduino",
   "authors": [
